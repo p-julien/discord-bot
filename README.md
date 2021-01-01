@@ -16,6 +16,9 @@ Create a Discord Bot :
 - https://realpython.com/how-to-make-a-discord-bot-python/
 - https://www.youtube.com/watch?v=rAMtjPTcyc8
 
+Create a cron task in Google Cloud Server : 
+- https://www.youtube.com/watch?v=5OL7fu2R4M8
+
 ## Configuration file format
 
 ```python
