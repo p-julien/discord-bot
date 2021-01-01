@@ -19,6 +19,7 @@ Create a Discord Bot :
 Create a cron task in Google Cloud Server : 
 - https://www.youtube.com/watch?v=5OL7fu2R4M8
 - https://crontab.guru/ (0 22 * * SUN)
+- https://console.cloud.google.com/home/dashboard?project=redditdiscordbot
 
 ## Configuration file format
 
