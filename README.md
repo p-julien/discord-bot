@@ -15,3 +15,14 @@ Use the Reddit API :
 Create a Discord Bot : 
 - https://realpython.com/how-to-make-a-discord-bot-python/
 - https://www.youtube.com/watch?v=rAMtjPTcyc8
+
+## Configuration file format
+
+```python
+username = "REDDIT_USERNAME"
+password = "REDDIT_PASSWORD"
+client_id = "REDDIT_CLIENT_APP_ID"
+client_secret = "REDDIT_CLIENT_APP_SECRET"
+user_agent = "REDDIT_USER_AGENT"
+discord_token = "DISCORD_TOKEN"
+```
