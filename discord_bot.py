@@ -1,7 +1,9 @@
 import config
 import discord
 import reddit
+import logger
 
+log = logger.Logger()
 client = discord.Client()
 discord_channels_sub_reddits = [
     ['cats', 'cats'],
@@ -27,25 +29,30 @@ def get_sub_reddit_name_by_channel_discord(discord_channel_name):
 
 @client.event
 async def on_ready():
-    print(f'{client.user} est connecté à Discord !\n')
+    try:
+        log.i(f'{client.user} est connecté à Discord !\n')
 
-    reddit_helper = reddit.RedditHelper()
-    discord_channels = client.get_all_channels()
+        reddit_helper = reddit.RedditHelper()
+        discord_channels = client.get_all_channels()
 
-    for discord_channel in discord_channels:
+        for discord_channel in discord_channels:
 
-        if (is_sub_reddit_correspondence(discord_channel.name)):
-            sub_reddit = get_sub_reddit_name_by_channel_discord(discord_channel.name)
-            print(f"Posts du sub_reddit {sub_reddit} dans le channel {discord_channel.name}")
+            if (is_sub_reddit_correspondence(discord_channel.name)):
+                sub_reddit = get_sub_reddit_name_by_channel_discord(discord_channel.name)
+                log.i(f"Posts du sub_reddit {sub_reddit} dans le channel {discord_channel.name}")
 
-            submissions = reddit_helper.get_posts_by_sub_reddit(sub_reddit)
-            for submission in submissions:
-                print(submission.url)
-                await discord_channel.send(submission.url)
+                submissions = reddit_helper.get_posts_by_sub_reddit(sub_reddit)
+                for submission in submissions:
+                    log.i(submission.url)
+                    await discord_channel.send(submission.url)
 
-            print()
-    
-    print("Fin de l'envoi des posts")
-    await client.close()
+                log.i()
+        
+        log.i("Fin de l'envoi des posts")
+
+        await client.logout()
+        await client.close()
+    except:
+        log.e("Une erreur est survenue lors de la publication des posts sur le discord.")
 
 client.run(config.discord_token)
