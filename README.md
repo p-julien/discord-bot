@@ -16,10 +16,14 @@ Create a Discord Bot :
 - https://realpython.com/how-to-make-a-discord-bot-python/
 - https://www.youtube.com/watch?v=rAMtjPTcyc8
 
-Create a cron task in Google Cloud Server : 
+Free VPS in Google Cloud Platform : 
 - https://www.youtube.com/watch?v=5OL7fu2R4M8
-- https://crontab.guru/ (0 22 * * SUN)
+- https://dev.to/phocks/how-to-get-a-free-google-server-forever-1fpf
 - https://console.cloud.google.com/home/dashboard?project=redditdiscordbot
+
+Create a cron task : 
+- https://crontab.guru/ (0 22 * * 0)
+
 
 ## Configuration file format
 

@@ -46,5 +46,6 @@ async def on_ready():
             print()
     
     print("Fin de l'envoi des posts")
+    await client.close()
 
 client.run(config.discord_token)
