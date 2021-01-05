@@ -1,7 +1,7 @@
 
 # Reddit Discord Bot
 
-Reddit Discord Bot is a Python library for retrieving and sending the best Reddit posts of the week on Discord.
+Reddit Discord Bot is a Python library for retrieving and sending the best Reddit posts of the day on Discord.
 
 ## Useful links
 
@@ -22,14 +22,12 @@ Free VPS in Google Cloud Platform :
 - https://console.cloud.google.com/home/dashboard?project=redditdiscordbot
 
 Create a cron task : 
-- https://crontab.guru/ (0 22 * * 0)
+- https://crontab.guru/ (0 20 * * *)
 
 
 ## Configuration file format
 
 ```python
-username = "REDDIT_USERNAME"
-password = "REDDIT_PASSWORD"
 client_id = "REDDIT_CLIENT_APP_ID"
 client_secret = "REDDIT_CLIENT_APP_SECRET"
 user_agent = "REDDIT_USER_AGENT"
