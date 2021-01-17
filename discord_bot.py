@@ -45,7 +45,11 @@ async def on_ready():
 
                 submissions = reddit_helper.get_posts_by_sub_reddit(sub_reddit)
                 for submission in submissions:
-                    message = f"**{submission.title}** {submission.url}"
+                    message = f"**{submission.title}**\n{submission.url}"
+
+                    if (submission.over_18):
+                        message = f"🔞 **{submission.title}** 🔞\n||{submission.url}||"
+
                     log.i(message)
                     await discord_channel.send(message)
 
