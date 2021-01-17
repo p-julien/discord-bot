@@ -9,6 +9,7 @@ discord_channels_sub_reddits = [
     ['art', 'Art'],
     ['cats', 'cats'],
     ['mbti', 'mbti'],
+    ['food', 'Food'],
     ['manga', 'manga'],
     ['trackmania', 'TrackMania'],
     ['battlestations', 'battlestations'],
