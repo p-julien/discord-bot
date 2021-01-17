@@ -9,7 +9,6 @@ discord_channels_sub_reddits = [
     ['art', 'Art'],
     ['cats', 'cats'],
     ['mbti', 'mbti'],
-    ['sims', 'thesims'],
     ['manga', 'manga'],
     ['trackmania', 'TrackMania'],
     ['battlestations', 'battlestations'],
