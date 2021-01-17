@@ -45,8 +45,9 @@ async def on_ready():
 
                 submissions = reddit_helper.get_posts_by_sub_reddit(sub_reddit)
                 for submission in submissions:
-                    log.i(submission.url)
-                    await discord_channel.send(submission.url)
+                    message = f"**{submission.title}** {submission.url}"
+                    log.i(message)
+                    await discord_channel.send(message)
 
                 log.i()
         
