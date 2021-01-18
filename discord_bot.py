@@ -45,16 +45,13 @@ async def on_ready():
 
                 submissions = reddit_helper.get_posts_by_sub_reddit(sub_reddit)
                 for submission in submissions:
-                    message = f"**{submission.title}**\n{submission.url}"
-
-                    if (submission.over_18):
-                        message = f"🔞 **{submission.title}** 🔞\n||{submission.url}||"
-
+                    message = f"**{submission.title}**\n{submission.url}" if not submission.over_18 else f"🔞 **{submission.title}** 🔞\n||{submission.url}||"
                     log.i(message)
+
                     await discord_channel.send(message)
 
                 log.i()
-        
+
         log.i("Fin de l'envoi des posts")
 
         await client.logout()
