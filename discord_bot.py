@@ -7,7 +7,7 @@ log = logger.Logger()
 client = discord.Client()
 discord_channels_sub_reddits = [
     ['art', 'Art'],
-    ['cats', 'cats'],
+    ['aww', 'aww'],
     ['mbti', 'mbti'],
     ['food', 'Food'],
     ['manga', 'manga'],
