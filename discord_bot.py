@@ -10,6 +10,7 @@ import os
 log = logger.Logger()
 client = discord.Client()
 burger_express = burger_express.BurgerExpress()
+reddit_helper = reddit.RedditHelper()
 
 def get_mime_type_from_url(url):
     try:
@@ -23,8 +24,6 @@ def get_file_size_from_url(url):
         return requests.Session().head(url, allow_redirects=True).headers['content-length']
     except Exception:
         return 9999999
-
-
 
 async def send_submission_on_discord_channel(discord_channel, submission):
     content = f"**{submission.title}**\n" if not submission.over_18 else f"🔞 **{submission.title}** 🔞\n"
@@ -56,32 +55,33 @@ async def send_as_message_on_discord_channel(discord_channel, submission, conten
     await discord_channel.send(content)
 
 
+async def send_reddit_submissions_to_discord():
+    if (not os.path.isdir('temp')):
+        os.mkdir("temp")
+        
+    for discord_channel in client.get_all_channels():
+
+        if (burger_express.is_sub_reddit_correspondence(discord_channel.name)):
+            sub_reddit = burger_express.get_sub_reddit_name_by_channel_discord(
+                discord_channel.name)
+            log.i(f"Posts du sub_reddit {sub_reddit} dans le channel {discord_channel.name}")
+
+            submissions = reddit_helper.get_posts_by_sub_reddit(sub_reddit)
+            for submission in submissions:
+                await send_submission_on_discord_channel(discord_channel, submission)
+
+    log.i("Fin de l'envoi des posts")
+
+
 @client.event
 async def on_ready():
     try:
-        if (not os.path.isdir('temp')):
-            os.mkdir("temp")
-
-        log.i(f'{client.user} est connecté à Discord !\n')
-
-        reddit_helper = reddit.RedditHelper()
-        discord_channels = client.get_all_channels()
-
-        for discord_channel in discord_channels:
-
-            if (burger_express.is_sub_reddit_correspondence(discord_channel.name)):
-                sub_reddit = burger_express.get_sub_reddit_name_by_channel_discord(
-                    discord_channel.name)
-                log.i(
-                    f"Posts du sub_reddit {sub_reddit} dans le channel {discord_channel.name}")
-
-                submissions = reddit_helper.get_posts_by_sub_reddit(sub_reddit)
-                for submission in submissions:
-                    await send_submission_on_discord_channel(discord_channel, submission)
-
-        log.i("Fin de l'envoi des posts")
+        log.i(f'{client.user} is connected to Discord!\n')
+        await send_reddit_submissions_to_discord()
+    except expression as ex:
+        log.e("An error occured while connecting to Discord.", ex)
+    finally:
         await client.logout()
-    except Exception:
-        log.e("Une erreur est survenue lors de la publication des posts sur le discord.")
+        await client.close()
 
 client.run(config.discord_token)

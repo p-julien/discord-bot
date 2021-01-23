@@ -11,11 +11,9 @@ class Logger:
         logging.basicConfig(filename=self.filename, level=logging.INFO)
  
     def i(self, message=''):
-        message = f'[{time.strftime(self.date_format)}] {message}'
-        logging.info(message)
+        logging.info(f'[{time.strftime(self.date_format)}] {message}')
         print(message)
 
-    def e(self, error):
-        error = f'[{time.strftime(self.date_format)}] {error}'
-        logging.error(error)
-        print(error)
+    def e(self, error, exception):
+        logging.error(f'[{time.strftime(self.date_format)}] {error} : {exception}')
+        print(f'{error} : {exception}')
