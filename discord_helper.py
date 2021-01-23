@@ -26,13 +26,13 @@ class DiscordHelper:
         fo = open(filepath, 'wb')
         fo.write(requests.get(submission.url, allow_redirects=True).content)
         submission_file = discord.File(filepath, filename)
-        # await discord_channel.send(content=content, file=submission_file)
+        await discord_channel.send(content=content, file=submission_file)
         fo.close()
 
     async def send_as_message_on_discord_channel(self, discord_channel, submission, content):
         content = f"{content}\n{submission.url}"
         self.log.i(f"Message: {content}")
-        # await discord_channel.send(content)
+        await discord_channel.send(content)
 
     async def send_reddit_submission_on_discord_channel(self, discord_channel, submission):
         content = f"**{submission.title}**" if not submission.over_18 else f"🔞 **{submission.title}** 🔞"
