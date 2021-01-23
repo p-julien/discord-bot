@@ -2,26 +2,14 @@ import config
 import discord
 import reddit
 import logger
+import burger_express
 import requests
 import shutil
 import os
 
 log = logger.Logger()
 client = discord.Client()
-discord_channels_sub_reddits = [
-    ['art', 'Art'],
-    ['aww', 'aww'],
-    ['mbti', 'mbti'],
-    ['food', 'Food'],
-    ['manga', 'manga'],
-    ['trackmania', 'TrackMania'],
-    ['battlestations', 'battlestations'],
-    ['rocket-league', 'RocketLeague'],
-    ['genshin-impact', 'Genshin_Impact'],
-    ['programmer-humor', 'ProgrammerHumor'],
-    ['mechanical-keyboards', 'MechanicalKeyboards']
-]
-
+burger_express = burger_express.BurgerExpress()
 
 def get_mime_type_from_url(url):
     try:
@@ -36,18 +24,6 @@ def get_file_size_from_url(url):
     except Exception:
         return 9999999
 
-
-def is_sub_reddit_correspondence(discord_channel_name):
-    for element in discord_channels_sub_reddits:
-        if (element[0] == discord_channel_name):
-            return True
-    return False
-
-
-def get_sub_reddit_name_by_channel_discord(discord_channel_name):
-    for element in discord_channels_sub_reddits:
-        if (element[0] == discord_channel_name):
-            return element[1]
 
 
 async def send_submission_on_discord_channel(discord_channel, submission):
@@ -93,8 +69,8 @@ async def on_ready():
 
         for discord_channel in discord_channels:
 
-            if (is_sub_reddit_correspondence(discord_channel.name)):
-                sub_reddit = get_sub_reddit_name_by_channel_discord(
+            if (burger_express.is_sub_reddit_correspondence(discord_channel.name)):
+                sub_reddit = burger_express.get_sub_reddit_name_by_channel_discord(
                     discord_channel.name)
                 log.i(
                     f"Posts du sub_reddit {sub_reddit} dans le channel {discord_channel.name}")
