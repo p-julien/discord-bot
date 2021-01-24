@@ -10,6 +10,7 @@ class BurgerExpress:
         ['battlestations', 'battlestations'],
         ['rocket-league', 'RocketLeague'],
         ['genshin-impact', 'Genshin_Impact'],
+        ['oddly-satisfying', 'oddlysatisfying'],
         ['programmer-humor', 'ProgrammerHumor'],
         ['mechanical-keyboards', 'MechanicalKeyboards']
     ]
