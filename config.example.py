@@ -8,4 +8,3 @@ discord_token = "DISCORD_BOT_TOKEN"
 
 # Debug info
 is_debug=False
-channel_debug_id=CHANNEL_DEBUG_ID
