@@ -58,8 +58,7 @@ class DiscordHelper:
                 for submission in self.reddit_helper.get_posts_by_sub_reddit(sub_reddit):
                     await self.send_reddit_submission_on_discord_channel(discord_channel, submission)
 
+            shutil.rmtree("temp")
             self.log.i("End of submissions sending!")
         except expression as ex:
             self.log.e("An error occured while sending submissions to Discord.", ex)
-        finally:
-            shutil.rmtree("temp")

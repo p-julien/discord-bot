@@ -1,5 +1,7 @@
 import config
 import discord
+from discord.ext import tasks
+from datetime import datetime
 import discord_helper
 import logger
 
@@ -9,12 +11,13 @@ discord_helper = discord_helper.DiscordHelper(client)
 
 @client.event
 async def on_ready():
-    try:
-        log.i(f'{client.user} is connected to Discord!')
-        await discord_helper.send_reddit_submissions_to_discord()
-    except expression as ex:
-        log.e("An error occured while connecting to Discord.", ex)
-    finally:
-        await client.logout()
+    log.i(f'{client.user} is connected to Discord!')
+    reddit_submissions_task.start()
+
+@tasks.loop(minutes=1)
+async def reddit_submissions_task():
+    now = datetime.now()
+    if not (now.hour == 20 and now.minute == 0): return
+    await discord_helper.send_reddit_submissions_to_discord()
 
 client.run(config.discord_token)
