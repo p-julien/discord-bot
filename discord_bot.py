@@ -12,7 +12,11 @@ discord_helper = discord_helper.DiscordHelper(client)
 @client.event
 async def on_ready():
     log.i(f'{client.user} is connected to Discord!')
-    reddit_submissions_task.start()
+
+    if config.is_debug: 
+        await discord_helper.send_reddit_submissions_to_discord()
+        await client.close()
+    else: reddit_submissions_task.start()
 
 @tasks.loop(minutes=1)
 async def reddit_submissions_task():
