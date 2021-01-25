@@ -12,8 +12,12 @@ discord_helper = discord_helper.DiscordHelper(client)
 @client.event
 async def on_ready():
     log.i(f'{client.user} is connected to Discord!')
-    if config.is_debug: await discord_helper.send_reddit_submissions_to_discord()
-    else: reddit_submissions_task.start()
+    if config.is_debug: 
+        await discord_helper.send_reddit_submissions_to_discord()
+        return
+
+    reddit_submissions_task.start()
+    reset_log_filename.start()
 
 @client.command()
 async def ping(ctx):
@@ -34,5 +38,9 @@ async def reddit_submissions_task():
     now = datetime.now()
     if not (now.hour == 20 and now.minute == 0): return
     await discord_helper.send_reddit_submissions_to_discord()
+
+@tasks.loop(hours=10)
+async def reset_log_filename():
+    log = logger.Logger()
 
 client.run(config.discord_token)
