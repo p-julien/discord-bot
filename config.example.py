@@ -8,3 +8,4 @@ discord_token = "DISCORD_BOT_TOKEN"
 
 # Debug info
 is_debug=False
+log_filepath="LOG_FILEPATH"
