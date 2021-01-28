@@ -65,5 +65,5 @@ class DiscordHelper:
 
             shutil.rmtree("temp")
             self.log.i("End of submissions sending!")
-        except expression as ex:
+        except Exception as ex:
             self.log.e("An error occured while sending submissions to Discord.", ex)
