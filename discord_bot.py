@@ -1,6 +1,7 @@
 import config
 import logger
 import discord
+import requests
 import discord_helper
 from discord.ext import tasks, commands
 from datetime import datetime
@@ -19,19 +20,38 @@ async def on_ready():
     reddit_submissions_task.start()
     reset_log_filename.start()
 
+@client.event
+async def on_command_error(context, exception):
+    log.e("An error occured while restarting the submissions command to Discord.", exception)
+    await context.send(str(exception))
+
 @client.command()
 async def ping(ctx):
     latency = round(client.latency * 1000)
     author = f'{ctx.author.name}#{ctx.author.discriminator}'
-    ping = f'Ping : {latency}ms.'
-    log.i(f'{author} ask for latency. {ping}')
-    await ctx.send(ping)
+    log.i(f'{author} ask for latency: {latency}ms')
+    await ctx.send(f'Latency : {latency}ms')
 
 @client.command(aliases=['log'])
 async def get_log(ctx):
     author = f'{ctx.author.name}#{ctx.author.discriminator}'
     log.i(f'{author} ask for log file.')
     await ctx.send(file=discord.File(log.filename))
+
+@client.command()
+@commands.cooldown(1, 30)
+async def restart(ctx):
+    author = f'{ctx.author.name}#{ctx.author.discriminator}'
+    log.i(f'{author} wants to restart the reddit submissions.')
+    await discord_helper.send_reddit_submissions_to_discord()
+
+@client.command()
+async def advice(ctx):
+    author = f'{ctx.author.name}#{ctx.author.discriminator}'
+    r = requests.get('https://api.adviceslip.com/advice').json()
+    advice = r['slip']['advice']
+    log.i(f'{author} ask for an advice. {advice}')
+    await ctx.send(advice)
 
 @tasks.loop(minutes=1)
 async def reddit_submissions_task():
