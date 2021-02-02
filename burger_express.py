@@ -6,6 +6,7 @@ class BurgerExpress:
         ['mbti', 'mbti'],
         ['food', 'FoodPorn'],
         ['manga', 'manga'],
+        ['beat-saber', 'beatsaber'],
         ['architecture', 'ArchitecturePorn'],
         ['battlestations', 'battlestations'],
         ['rocket-league', 'RocketLeague'],
