@@ -6,13 +6,13 @@ import discord_helper
 from discord.ext import tasks, commands
 from datetime import datetime
 
-log = logger.Logger()
+logger = logger.Logger()
 client = commands.Bot(command_prefix='$')
 discord_helper = discord_helper.DiscordHelper(client)
 
 @client.event
 async def on_ready():
-    log.i(f'✔️ {client.user} is connected to Discord!')
+    logger.i(f'✔️ {client.user} is connected to Discord!')
     if config.is_debug: 
         await discord_helper.send_reddit_submissions_to_discord()
         return
@@ -22,27 +22,29 @@ async def on_ready():
 
 @client.event
 async def on_command_error(context, exception):
-    log.e("❌ An error occured while restarting the submissions command to Discord.", exception)
+    logger.e("❌ An error occured while restarting the submissions command to Discord.", exception)
     await context.send(str(exception))
 
 @client.command()
 async def ping(ctx):
     latency = round(client.latency * 1000)
     author = f'{ctx.author.name}#{ctx.author.discriminator}'
-    log.i(f'ℹ️ {author} ask for latency: {latency}ms')
-    await ctx.send(f'Latency : {latency}ms')
+    logger.i(f'ℹ️ {author} ask for latency: {latency}ms')
+    title = f'Latency : {latency}ms'
+    embed = discord.Embed(title=title, color=0xe6742b)
+    await ctx.send(embed=embed)
 
-@client.command(aliases=['log'])
-async def get_log(ctx):
+@client.command()
+async def log(ctx):
     author = f'{ctx.author.name}#{ctx.author.discriminator}'
-    log.i(f'ℹ️ {author} ask for log file.')
-    await ctx.send(file=discord.File(log.filename))
+    logger.i(f'ℹ️ {author} ask for log file.')
+    await ctx.send(file=discord.File(logger.filename))
 
 @client.command()
 @commands.cooldown(1, 30)
 async def restart(ctx):
     author = f'{ctx.author.name}#{ctx.author.discriminator}'
-    log.i(f'ℹ️ {author} wants to restart the reddit submissions.')
+    logger.i(f'ℹ️ {author} wants to restart the reddit submissions.')
     await discord_helper.send_reddit_submissions_to_discord()
 
 @client.command()
@@ -50,14 +52,15 @@ async def advice(ctx):
     author = f'{ctx.author.name}#{ctx.author.discriminator}'
     r = requests.get('https://api.adviceslip.com/advice').json()
     advice = r['slip']['advice']
-    log.i(f'ℹ️ {author} ask for an advice. {advice}')
-    await ctx.send(advice)
+    logger.i(f'ℹ️ {author} ask for an advice. {advice}')
+    embed = discord.Embed(title=advice, color=0xe6742b)
+    await ctx.send(embed=embed)
 
 @client.command()
 @commands.cooldown(5, 30)
 async def pull(ctx):
     author = f'{ctx.author.name}#{ctx.author.discriminator}'
-    log.i(f'ℹ️ {author} ask for a pull on channel {ctx.channel.name}')
+    logger.i(f'ℹ️ {author} ask for a pull on channel {ctx.channel.name}')
     await discord_helper.send_reddit_submissions_to_discord_channel(ctx.channel)
 
 @tasks.loop(minutes=1)
@@ -68,6 +71,6 @@ async def reddit_submissions_task():
 
 @tasks.loop(hours=10)
 async def reset_log_filename():
-    log = logger.Logger()
+    logger = logger.Logger()
 
 client.run(config.discord_token)
