@@ -2,6 +2,7 @@ class BurgerExpress:
 
     discord_channels_sub_reddits = [
         ['art', 'Art'],
+        ['ffxiv', 'ffxiv'],
         ['aww', 'aww'],
         ['mbti', 'mbti'],
         ['food', 'FoodPorn'],
