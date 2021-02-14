@@ -73,6 +73,8 @@ class DiscordHelper:
     async def send_reddit_submissions_to_discord_channel(self, discord_channel):
         try:
             if not self.burger_express.is_sub_reddit_correspondence(discord_channel.name): return
+            if not os.path.isdir('temp'): os.mkdir("temp")
+
             sub_reddit = self.burger_express.get_sub_reddit_name_by_channel_discord(discord_channel.name) 
             
             self.log.i(f"ℹ️ Posts from {sub_reddit} in channel {discord_channel.name}:")
