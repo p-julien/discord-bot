@@ -7,6 +7,7 @@ class BurgerExpress:
         ['mbti', 'mbti'],
         ['food', 'FoodPorn'],
         ['manga', 'manga'],
+        ['surprise', 'popular'],
         ['beat-saber', 'beatsaber'],
         ['architecture', 'ArchitecturePorn'],
         ['battlestations', 'battlestations'],
