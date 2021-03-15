@@ -8,6 +8,7 @@ class BurgerExpress:
         ['food', 'FoodPorn'],
         ['manga', 'manga'],
         ['surprise', 'popular'],
+        ['pokemon', 'pokemon'],
         ['beat-saber', 'beatsaber'],
         ['architecture', 'ArchitecturePorn'],
         ['battlestations', 'battlestations'],
