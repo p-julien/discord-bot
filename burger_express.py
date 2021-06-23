@@ -10,6 +10,7 @@ class BurgerExpress:
         ['surprise', 'popular'],
         ['pokemon', 'pokemon'],
         ['beat-saber', 'beatsaber'],
+        ['trackmania', 'TrackMania'],
         ['architecture', 'ArchitecturePorn'],
         ['battlestations', 'battlestations'],
         ['rocket-league', 'RocketLeague'],
