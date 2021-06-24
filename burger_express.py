@@ -16,6 +16,7 @@ class BurgerExpress:
         ['rocket-league', 'RocketLeague'],
         ['genshin-impact', 'Genshin_Impact'],
         ['oddly-satisfying', 'oddlysatisfying'],
+        ['genshin-memepact', 'Genshin_Memepact'],
         ['programmer-humor', 'ProgrammerHumor'],
         ['mechanical-keyboards', 'MechanicalKeyboards']
     ]
