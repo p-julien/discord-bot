@@ -5,6 +5,7 @@ import reddit_helper
 import burger_express
 import decode_url
 import requests
+import random
 import shutil
 import os
 
@@ -47,6 +48,11 @@ class DiscordHelper:
         try:
             content = f"**{submission.title}**" if not submission.over_18 else f"🔞 **{submission.title}** 🔞"
             submission_url_mime_type = self.decode_url.get_mime_type_from_url(submission.url).split("/") 
+
+            if "first time" in content.lower():
+                insulte_index = random.randint(0,2)
+                insultes = ["Fils de pute", "Ta mère la pute !", "Ta salope de mère"]
+                content = f"[*{insultes[insulte_index]}*] {content}"
 
             if self.is_attachment(submission, submission_url_mime_type):
                 await self.send_as_attachment_on_discord_channel(discord_channel, submission, submission_url_mime_type, content)
