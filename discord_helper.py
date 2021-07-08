@@ -47,6 +47,9 @@ class DiscordHelper:
     async def send_reddit_submission_on_discord_channel(self, discord_channel, submission):
         try:
             content = f"**{submission.title}**" if not submission.over_18 else f"🔞 **{submission.title}** 🔞"
+
+            if discord_channel != "nsfw":
+                content = f"**{submission.title}**"
             submission_url_mime_type = self.decode_url.get_mime_type_from_url(submission.url).split("/") 
 
             if "first time" in content.lower():
