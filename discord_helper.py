@@ -23,7 +23,7 @@ class DiscordHelper:
         self.log.i(f"🖼️ Attachment: {submission.title}")
 
         filename = f"{submission}.{mime_type[1]}" if not submission.over_18 else f"SPOILER_{submission}.{mime_type[1]}"
-        if discord_channel == "nsfw": filename = f"{submission}.{mime_type[1]}"
+        if discord_channel.name == "nsfw": filename = f"{submission}.{mime_type[1]}"
         filepath = os.path.join("temp", filename)
 
         fo = open(filepath, 'wb')
@@ -49,7 +49,7 @@ class DiscordHelper:
         try:
             content = f"**{submission.title}**" if not submission.over_18 else f"🔞 **{submission.title}** 🔞"
 
-            if discord_channel == "nsfw": content = f"**{submission.title}**"
+            if discord_channel.name == "nsfw": content = f"**{submission.title}**"
             submission_url_mime_type = self.decode_url.get_mime_type_from_url(submission.url).split("/") 
 
             if "first time" in content.lower():
