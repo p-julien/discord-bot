@@ -4,10 +4,13 @@ import discord
 import requests
 import discord_helper
 from discord.ext import tasks, commands
+from discord_slash import SlashCommand, SlashContext
+from discord_slash.utils.manage_commands import create_choice, create_option
 from datetime import datetime
 
 logger = logger.Logger()
 client = commands.Bot(command_prefix='$')
+slash = SlashCommand(client, sync_commands=True)
 discord_helper = discord_helper.DiscordHelper(client)
 
 @client.event
@@ -25,7 +28,11 @@ async def on_command_error(context, exception):
     logger.e("❌ An error occured while restarting the submissions command to Discord.", exception)
     await context.send(str(exception))
 
-@client.command()
+@slash.slash(
+    name="ping",
+    description="Ping the server of the bot",
+    guild_ids=[556978214124388352]
+)
 async def ping(ctx):
     latency = round(client.latency * 1000)
     author = f'{ctx.author.name}#{ctx.author.discriminator}'
@@ -47,7 +54,11 @@ async def restart(ctx):
     logger.i(f'ℹ️ {author} wants to restart the reddit submissions.')
     await discord_helper.send_reddit_submissions_to_discord()
 
-@client.command()
+@slash.slash(
+    name="advice",
+    description="Get a random advice",
+    guild_ids=[556978214124388352]
+)
 async def advice(ctx):
     author = f'{ctx.author.name}#{ctx.author.discriminator}'
     r = requests.get('https://api.adviceslip.com/advice').json()
@@ -56,12 +67,16 @@ async def advice(ctx):
     embed = discord.Embed(title=advice, color=0xe6742b)
     await ctx.send(embed=embed)
 
-@client.command()
-async def doche_location(ctx):
+@slash.slash(
+    name="whereisdoche",
+    description="Get the location of Doche Maxime",
+    guild_ids=[556978214124388352]
+)
+async def whereis_doche(ctx):
     author = f'{ctx.author.name}#{ctx.author.discriminator}'
     r = requests.get('http://codem.tk/ou-suis-je')
     location = r.text.strip()
-    logger.i(f'ℹ️ Maxime est à {location} !')
+    logger.i(f'ℹ️ {author} ask for the location of Maxime. He is at {location}')
     embed = discord.Embed(title=f'Maxime est à {location} !', color=0xe6742b)
     await ctx.send(embed=embed)
 
