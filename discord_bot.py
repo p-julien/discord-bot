@@ -4,8 +4,7 @@ import discord
 import requests
 import discord_helper
 from discord.ext import tasks, commands
-from discord_slash import SlashCommand, SlashContext
-from discord_slash.utils.manage_commands import create_choice, create_option
+from discord_slash import SlashCommand
 from datetime import datetime
 
 logger = logger.Logger()
@@ -41,14 +40,21 @@ async def ping(ctx):
     embed = discord.Embed(title=title, color=0xe6742b)
     await ctx.send(embed=embed)
 
-@client.command()
+@slash.slash(
+    name="log",
+    description="Get the log file of the bot",
+    guild_ids=[556978214124388352]
+)
 async def log(ctx):
     author = f'{ctx.author.name}#{ctx.author.discriminator}'
     logger.i(f'ℹ️ {author} ask for log file.')
     await ctx.send(file=discord.File(logger.filename))
 
-@client.command()
-@commands.cooldown(1, 30)
+@slash.slash(
+    name="restart",
+    description="Restart the reddit submissions",
+    guild_ids=[556978214124388352]
+)
 async def restart(ctx):
     author = f'{ctx.author.name}#{ctx.author.discriminator}'
     logger.i(f'ℹ️ {author} wants to restart the reddit submissions.')
@@ -80,8 +86,11 @@ async def whereis_doche(ctx):
     embed = discord.Embed(title=f'Maxime est à {location} !', color=0xe6742b)
     await ctx.send(embed=embed)
 
-@client.command()
-@commands.cooldown(5, 30)
+@slash.slash(
+    name="pull",
+    description="Pull the reddit submissions for the current channel",
+    guild_ids=[556978214124388352]
+)
 async def pull(ctx):
     author = f'{ctx.author.name}#{ctx.author.discriminator}'
     logger.i(f'ℹ️ {author} ask for a pull on channel {ctx.channel.name}')
@@ -92,9 +101,5 @@ async def reddit_submissions_task():
     now = datetime.now()
     if not (now.hour == 20 and now.minute == 0): return
     await discord_helper.send_reddit_submissions_to_discord()
-
-@tasks.loop(hours=10)
-async def reset_log_filename():
-    logger = logger.Logger()
 
 client.run(config.discord_token)
