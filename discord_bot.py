@@ -21,7 +21,7 @@ async def on_ready():
         return
 
     reddit_submissions_task.start()
-    reset_log_filename.start()
+    # reset_log_filename.start()
 
 @client.event
 async def on_command_error(context, exception):
