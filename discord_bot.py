@@ -60,7 +60,7 @@ async def advice(ctx):
 async def doche_location(ctx):
     author = f'{ctx.author.name}#{ctx.author.discriminator}'
     r = requests.get('http://codem.tk/ou-suis-je')
-    location = r.text.strip().capitalize()
+    location = r.text.strip()
     logger.i(f'ℹ️ Maxime est à {location} !')
     embed = discord.Embed(title=f'Maxime est à {location} !', color=0xe6742b)
     await ctx.send(embed=embed)
