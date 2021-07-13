@@ -19,6 +19,14 @@ class DiscordHelper:
     def __init__(self, client):
         self.client = client
 
+    def save_picture(self, filepath, submission):
+        try:
+            fo = open(filepath, 'wb')
+            fo.write(requests.get(submission.url, allow_redirects=True).content)
+            fo.close()
+        except Exception as ex:
+            raise Exception("❌ An error occured while saving the picture", ex)
+
     async def send_as_attachment_on_discord_channel(self, discord_channel, submission, mime_type, content):
         self.log.i(f"🖼️ Attachment: {submission.title}")
 
@@ -26,10 +34,7 @@ class DiscordHelper:
         if discord_channel.name == "nsfw": filename = f"{submission}.{mime_type[1]}"
         filepath = os.path.join("temp", filename)
 
-        fo = open(filepath, 'wb')
-        fo.write(requests.get(submission.url, allow_redirects=True).content)
-        fo.close()
-
+        self.save_picture(filepath, submission)
         if config.is_debug: return
 
         submission_file = discord.File(filepath, filename)
