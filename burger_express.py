@@ -5,7 +5,6 @@ class BurgerExpress:
         ['ffxiv', 'ffxiv'],
         ['aww', 'aww'],
         ['mbti', 'mbti'],
-        ['nsfw', ['GenshinImpactHentai', 'hentai', 'nsfwcosplay', 'ass', 'RealGirls', 'boobs', 'NSFWFunny']],
         ['food', 'FoodPorn'],
         ['manga', 'manga'],
         ['surprise', 'popular'],
