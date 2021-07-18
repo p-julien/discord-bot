@@ -1,3 +1,3 @@
 # Reddit Discord Bot
 
-Reddit Discord Bot is a Python library for retrieving and sending the best Reddit posts of the day on Discord.
+Reddit Discord Bot is a JavaScript project for retrieving and sending the best Reddit posts of the day on Discord.

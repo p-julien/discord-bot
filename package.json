@@ -1,0 +1,17 @@
+{
+  "name": "reddit-discord-bot",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^12.5.3",
+    "dotenv": "^10.0.0",
+    "node-cron": "^3.0.0",
+    "node-fetch": "^2.6.1",
+    "snoowrap": "^1.23.0"
+  }
+}
