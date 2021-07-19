@@ -1,6 +1,6 @@
 import { MessageEmbed } from 'discord.js';
 
-export default class PingCommand {
+export class UnknownCommand {
     
     constructor(client, interaction) {
         this.client = client;
@@ -23,10 +23,6 @@ export default class PingCommand {
     getEmbedMessage() {
         return new MessageEmbed()
             .setColor('#E6742B')
-            .setTitle(`🏓 Latency: ${this.getLatency()}ms`)
-    }
-
-    getLatency() {
-        return Math.round(this.client.ws.ping)
+            .setTitle(`Sorry I didn't know the command ${this.interaction.name}`)
     }
 }

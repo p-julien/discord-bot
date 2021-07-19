@@ -1,7 +1,7 @@
 import { MessageEmbed } from 'discord.js';
 import fetch from 'node-fetch';
 
-export default class WhereIsDocheCommand {
+export class AdviceCommand {
     
     constructor(client, interaction) {
         this.client = client;
@@ -9,28 +9,29 @@ export default class WhereIsDocheCommand {
     }
 
     async run() {
+        const advice = await this.getAdvice()
         this.client.api.interactions(this.interaction.id, this.interaction.token)
             .callback
             .post({
                 data: {
                     type: 4,
                     data: {
-                        embeds: [ await this.getEmbedMessage() ]
+                        embeds: [ await this.getEmbedMessage(advice) ]
                     }
                 }
             })
     }
 
-    async getEmbedMessage() {
-        const docheLocation = await this.getDocheLocation()
+    async getEmbedMessage(advice) {
         return new MessageEmbed()
             .setColor('#E6742B')
-            .setTitle(`🛰️ Doche location: ${docheLocation}`)
+            .setTitle(`🔮 ${advice}`)
     }
 
-    async getDocheLocation() {
-        const response  = await fetch('http://codem.tk/ou-suis-je')
-        const docheLocation = await response.text()
-        return docheLocation
+    async getAdvice() {
+        const response  = await fetch('https://api.adviceslip.com/advice')
+        const data = await response.json()
+        const advice = data.slip.advice
+        return advice
     }
 }

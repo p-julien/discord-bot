@@ -1,11 +1,10 @@
-import { MessageEmbed, MessageAttachment } from 'discord.js';
+import { MessageAttachment } from 'discord.js';
 import Snoowrap from 'snoowrap';
 
-export default class PullRedditCommand {
+export class RedditPull {
     
-    constructor(client, interaction) {
+    constructor(client) {
         this.client = client;
-        this.interaction = interaction;
         this.snoowrap = new Snoowrap({
             userAgent: process.env.REDDIT_USER_AGENT,
             clientId: process.env.REDDIT_CLIENT_ID,
@@ -14,26 +13,9 @@ export default class PullRedditCommand {
         })
     }
 
-    run() {
-        const discordChannel = this.getDiscordChannel()
-        setTimeout(() => this.sendRedditPostsToDiscordChannel(discordChannel), 0)
-
-        this.client.api.interactions(this.interaction.id, this.interaction.token)
-            .callback
-            .post({
-                data: {
-                    type: 4,
-                    data: {
-                        embeds: [ this.getEmbedMessage(discordChannel) ]
-                    }
-                }
-            })
-    }
-    
-    getEmbedMessage(discordChannel) {
-        return new MessageEmbed()
-            .setColor('#E6742B')
-            .setTitle(`ℹ️ Les posts du reddit r/${discordChannel.topic} vont être envoyés !`)
+    sendRedditPostsToDiscordChannels() {
+        const discordChannels = this.getDiscordChannels()
+        discordChannels.forEach(discordChannel => this.sendRedditPostsToDiscordChannel(discordChannel))
     }
 
     sendRedditPostsToDiscordChannel(discordChannel) {
@@ -46,11 +28,19 @@ export default class PullRedditCommand {
                 : discordChannel.send(`**${post.title}**\n${post.url}`)
         });
     }
-
-    getDiscordChannel() {
+    
+    getDiscordChannel(interaction) {
         for (const [key, value] of this.client.channels.cache)
-            if (key === this.interaction.channel_id)
+            if (key === interaction.channel_id)
                 return value
+    }
+
+    getDiscordChannels() {
+        const discordChannels = []
+        for (const [key, value] of this.client.channels.cache)
+            if (value.parent !== null && value.parent.name === "Reddit")
+                discordChannels.push(value)
+        return discordChannels
     }
 
     isUrlImage(url) {

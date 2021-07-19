@@ -1,28 +1,36 @@
 import { MessageEmbed } from 'discord.js';
+import fetch from 'node-fetch';
 
-export default class UnknownCommand {
+export class WhereIsDocheCommand {
     
     constructor(client, interaction) {
         this.client = client;
         this.interaction = interaction;
     }
 
-    run() {
+    async run() {
         this.client.api.interactions(this.interaction.id, this.interaction.token)
             .callback
             .post({
                 data: {
                     type: 4,
                     data: {
-                        embeds: [ this.getEmbedMessage() ]
+                        embeds: [ await this.getEmbedMessage() ]
                     }
                 }
             })
     }
 
-    getEmbedMessage() {
+    async getEmbedMessage() {
+        const docheLocation = await this.getDocheLocation()
         return new MessageEmbed()
             .setColor('#E6742B')
-            .setTitle(`Sorry I didn't know the command ${this.interaction.name}`)
+            .setTitle(`🛰️ Doche location: ${docheLocation}`)
+    }
+
+    async getDocheLocation() {
+        const response  = await fetch('http://codem.tk/ou-suis-je')
+        const docheLocation = await response.text()
+        return docheLocation
     }
 }
