@@ -1,5 +1,6 @@
 import { MessageAttachment } from 'discord.js';
 import Snoowrap from 'snoowrap';
+import fetch from 'node-fetch';
 
 export class RedditPull {
     
@@ -22,11 +23,44 @@ export class RedditPull {
         const posts = this.snoowrap.getSubreddit(discordChannel.topic)
             .getTop({time: 'day', limit: 3})
 
-        posts.forEach(post => {
-            this.isUrlImage(post.url) 
-                ? discordChannel.send(`**${post.title}**`, new MessageAttachment(post.url))
-                : discordChannel.send(`**${post.title}**\n${post.url}`)
-        });
+        posts.forEach(post => this.sendRedditPostToDiscordChannel({ discordChannel: discordChannel, post: post }));
+    }
+
+    sendRedditPostToDiscordChannel(data) {
+        data.post.title = `**${data.post.title}**`
+
+        this.sendRedditPost(data, 
+            () => data.discordChannel.send(data.post.title, new MessageAttachment(data.post.url)), 
+            () => data.discordChannel.send(`${data.post.title}\n${data.post.url}`))
+
+        // if (this.isUrlImage(data.post.url)) this.sendRedditPostAsAttachment(data)
+        // else data.discordChannel.send(`${data.post.title}\n${data.post.url}`)
+    }
+
+    sendRedditPost(data, sendAsAttachment, sendAsMessage) {
+        if (!this.isUrlImage(data.post.url)) {
+            sendAsMessage()
+            return
+        }
+
+        fetch(data.post.url).then(response => {
+            const imageSize = response.headers.get("content-length")
+            imageSize < 8000000 ? sendAsAttachment() : sendAsMessage()
+        })
+    }
+
+    sendRedditPostAsAttachment(data) {
+        this.isImageLessThan8Mb(data.post.url, () => {
+            const attachment = new MessageAttachment(data.post.url)
+            data.discordChannel.send(data.post.title, attachment)
+        }) 
+    }
+
+    isImageLessThan8Mb(urlImage, sendImage) {
+        fetch(urlImage).then(response => {
+            const imageSize = response.headers.get("content-length")
+            if (imageSize < 8000000) sendImage()
+        })
     }
     
     getDiscordChannel(interaction) {
