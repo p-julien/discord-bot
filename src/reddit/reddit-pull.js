@@ -44,7 +44,8 @@ export class RedditPull {
     }
 
     isUrlImage(url) {
-        const pattern = /([a-z\-_0-9\/\:\.]*\.(jpg|jpeg|png|gif))/i;
-        return pattern.test(url);
+        const extensions = ['jpg', 'jpeg', 'png', 'gif']
+        const extension = url.split('.').pop();
+        return extensions.includes(extension)
     }
 }
