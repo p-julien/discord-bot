@@ -35,31 +35,28 @@ export class RedditPull {
     sendRedditPostToDiscordChannel(data) {
         data.post.title = `**${data.post.title}**`
 
-        this.sendRedditPost(data, 
-            () => data.discordChannel.send(data.post.title, new MessageAttachment(data.post.url)), 
-            () => data.discordChannel.send(`${data.post.title}\n${data.post.url}`))
-
-        // if (this.isUrlImage(data.post.url)) this.sendRedditPostAsAttachment(data)
-        // else data.discordChannel.send(`${data.post.title}\n${data.post.url}`)
-    }
-
-    sendRedditPost(data, sendAsAttachment, sendAsMessage) {
-        if (!this.isUrlImage(data.post.url)) {
-            sendAsMessage()
+        if (data.post.is_gallery) {
+            const medias = data.post.media_metadata
+            const items = data.post.gallery_data.items
+            const urls = []
+            
+            items.forEach(item => urls.push(medias[item.media_id].s.u))
+            data.discordChannel.send(data.post.title, { files: urls })
             return
         }
 
-        fetch(data.post.url).then(response => {
-            const imageSize = response.headers.get("content-length")
-            imageSize < 8000000 ? sendAsAttachment() : sendAsMessage()
-        })
-    }
+        if (this.isUrlImage(data.post.url)) {
+            fetch(data.post.url).then(response => {
+                const imageSize = response.headers.get("content-length")
+                const isImageTooBigForDiscord = imageSize > 8000000
 
-    sendRedditPostAsAttachment(data) {
-        this.isImageLessThan8Mb(data.post.url, () => {
-            const attachment = new MessageAttachment(data.post.url)
-            data.discordChannel.send(data.post.title, attachment)
-        }) 
+                if (isImageTooBigForDiscord) data.discordChannel.send(`${data.post.title}\n${data.post.url}`)
+                else data.discordChannel.send(data.post.title, new MessageAttachment(data.post.url))
+            })
+            return
+        }
+
+        data.discordChannel.send(`${data.post.title}\n${data.post.url}`)
     }
 
     isImageLessThan8Mb(urlImage, sendImage) {
