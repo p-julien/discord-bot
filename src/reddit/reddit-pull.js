@@ -20,10 +20,20 @@ export class RedditPull {
     }
 
     sendRedditPostsToDiscordChannel(discordChannel) {
+        if (discordChannel.topic == null) return;
         const posts = this.snoowrap.getSubreddit(discordChannel.topic)
             .getTop({time: 'day', limit: 3})
+        try {
+            if (discordChannel.topic == null) return;
 
         posts.forEach(post => this.sendRedditPostToDiscordChannel({ discordChannel: discordChannel, post: post }));
+            const reddit = this.snoowrap.getSubreddit(discordChannel.topic) 
+            const posts = reddit.getTop({ time: 'day', limit: 3 })
+            
+            posts.forEach(post => this.sendRedditPostToDiscordChannel({ discordChannel: discordChannel, post: post }))
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     sendRedditPostToDiscordChannel(data) {
