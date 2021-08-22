@@ -8,11 +8,10 @@ dotenv.config()
 const client = new Client();
 
 client.on('ready', () => {
-	console.log(`Logged in as ${client.user.tag}!`);
-    cron.schedule('0 20 * * *', () => {
-        console.log("Task is ready for 20PM every day!")
+    console.log(`Logged in as ${client.user.tag}!`);
+    cron.schedule('0 20 * * *', async () => {
         const redditPull = new RedditPull(client)
-        redditPull.sendRedditPostsToDiscordChannels()
+        await redditPull.sendRedditPostsToDiscordChannels()
     });
 });
 

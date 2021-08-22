@@ -14,56 +14,52 @@ export class RedditPull {
         })
     }
 
-    sendRedditPostsToDiscordChannels() {
+    async sendRedditPostsToDiscordChannels() {
         const discordChannels = this.getDiscordChannels()
-        discordChannels.forEach(discordChannel => this.sendRedditPostsToDiscordChannel(discordChannel))
+        for (const discordChannel of discordChannels) 
+            await this.sendRedditPostsToDiscordChannel(discordChannel)
     }
 
-    sendRedditPostsToDiscordChannel(discordChannel) {
+    async sendRedditPostsToDiscordChannel(discordChannel) {
         try {
             if (discordChannel.topic == null) return;
 
             const reddit = this.snoowrap.getSubreddit(discordChannel.topic) 
-            const posts = reddit.getTop({ time: 'day', limit: 3 })
+            const posts = await reddit.getTop({ time: 'day', limit: 3 })
             
-            posts.forEach(post => this.sendRedditPostToDiscordChannel({ discordChannel: discordChannel, post: post }))
+            for (const post of posts) 
+                await this.sendRedditPostToDiscordChannel(discordChannel, post)
         } catch (error) {
             console.log(error)
         }
     }
 
-    sendRedditPostToDiscordChannel(data) {
-        data.post.title = `**${data.post.title}**`
+    async sendRedditPostToDiscordChannel(discordChannel, post) {
+        post.title = `**${post.title}**`
 
-        if (data.post.is_gallery) {
-            const medias = data.post.media_metadata
-            const items = data.post.gallery_data.items
+        if (post.is_gallery) {
             const urls = []
+            post.gallery_data.items.forEach(item => urls.push(post.media_metadata[item.media_id].s.u))
+            await discordChannel.send(post.title, { files: urls })
+            return
+        }
+
+        if (this.isUrlImage(post.url)) {
+            const isImageLessThan8Mb = await this.isImageLessThan8Mb(post.url)
             
-            items.forEach(item => urls.push(medias[item.media_id].s.u))
-            data.discordChannel.send(data.post.title, { files: urls })
-            return
+            if (isImageLessThan8Mb) {
+                await discordChannel.send(post.title, new MessageAttachment(post.url))
+                return
+            }
         }
 
-        if (this.isUrlImage(data.post.url)) {
-            fetch(data.post.url).then(response => {
-                const imageSize = response.headers.get("content-length")
-                const isImageTooBigForDiscord = imageSize > 8000000
-
-                if (isImageTooBigForDiscord) data.discordChannel.send(`${data.post.title}\n${data.post.url}`)
-                else data.discordChannel.send(data.post.title, new MessageAttachment(data.post.url))
-            })
-            return
-        }
-
-        data.discordChannel.send(`${data.post.title}\n${data.post.url}`)
+        await discordChannel.send(`${post.title}\n${post.url}`)
     }
 
-    isImageLessThan8Mb(urlImage, sendImage) {
-        fetch(urlImage).then(response => {
-            const imageSize = response.headers.get("content-length")
-            if (imageSize < 8000000) sendImage()
-        })
+    async isImageLessThan8Mb(urlImage) {
+        const response =  await fetch(urlImage)
+        const imageSize = response.headers.get("content-length")
+        return imageSize < 8000000
     }
     
     getDiscordChannel(interaction) {

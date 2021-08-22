@@ -8,10 +8,8 @@ export class RedditPullCommand extends RedditPull {
         this.interaction = interaction;
     }
 
-    run() {
+    async run() {
         const discordChannel = this.getDiscordChannel(this.interaction)
-        setTimeout(() => this.sendRedditPostsToDiscordChannel(discordChannel), 0)
-
         this.client.api.interactions(this.interaction.id, this.interaction.token)
             .callback
             .post({
@@ -22,6 +20,8 @@ export class RedditPullCommand extends RedditPull {
                     }
                 }
             })
+
+        await this.sendRedditPostsToDiscordChannel(discordChannel)
     }
     
     getEmbedMessage(discordChannel) {
