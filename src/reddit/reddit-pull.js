@@ -38,17 +38,25 @@ export class RedditPull {
         post.title = `**${post.title}**`
 
         if (post.is_gallery) {
-            const urls = []
-            post.gallery_data.items.forEach(item => urls.push(post.media_metadata[item.media_id].s.u))
-            await discordChannel.send(post.title, { files: urls })
+            const files = []
+            post.gallery_data.items.forEach(item => {
+                const media = post.media_metadata[item.media_id]
+                const attachment = media.s.u
+                const file = { attachment: attachment } 
+                if (post.over_18) file.name = `SPOILER_${item.media_id}.${media.m.split('/').pop()}`
+                files.push(file)
+            })
+            await discordChannel.send(post.title, { files: files })
             return
         }
 
-        if (this.isUrlImage(post.url)) {
+        if (this.isImage(post.url)) {
             const isImageLessThan8Mb = await this.isImageLessThan8Mb(post.url)
             
             if (isImageLessThan8Mb) {
-                await discordChannel.send(post.title, new MessageAttachment(post.url))
+                const file = { attachment: post.url }                
+                if (post.over_18) file.name = `SPOILER_${post.id}.${this.getExtension(post.url)}`
+                await discordChannel.send(post.title, { files: [file] })
                 return
             }
         }
@@ -76,9 +84,13 @@ export class RedditPull {
         return discordChannels
     }
 
-    isUrlImage(url) {
+    isImage(url) {
         const extensions = ['jpg', 'jpeg', 'png', 'gif']
-        const extension = url.split('.').pop();
+        const extension = this.getExtension(url)
         return extensions.includes(extension)
+    }
+
+    getExtension(url) {
+        return url.split('.').pop()
     }
 }
