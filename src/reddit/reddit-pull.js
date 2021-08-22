@@ -1,6 +1,8 @@
-import { MessageAttachment } from 'discord.js';
-import Snoowrap from 'snoowrap';
-import fetch from 'node-fetch';
+import { MessageAttachment } from 'discord.js'
+import Snoowrap from 'snoowrap'
+import fetch from 'node-fetch'
+import { promises as fs } from 'fs'
+import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg'
 
 export class RedditPull {
     
@@ -43,6 +45,9 @@ export class RedditPull {
         if (this.IsUrlAnImage(post.url))
             return await this.sendRedditPostAsImage(discordChannel, post)
 
+        if (post.is_video)
+            return await this.sendRedditPostAsVideo(discordChannel, post)
+
         if (post.selftext !== '')
             return await this.sendRedditPostAsContentText(discordChannel, post)
 
@@ -61,6 +66,54 @@ export class RedditPull {
         await discordChannel.send(post.title + "\n```" + post.selftext + "```")
     }
 
+    async sendRedditPostAsVideo(discordChannel, post) {
+        try {
+            const highestQuality = await this.getHighestQuality(post.url)
+            const response = await fetch(`${post.url}/DASH_audio.mp4`)
+
+            if (response.status != 200) {
+                const file = { attachment: `${post.url}/DASH_${highestQuality}.mp4`, name: `${post.id}.mp4` }
+                if (post.over_18 || post.spoiler) file.name = `SPOILER_${post.id}.mp4`
+                return await discordChannel.send(post.title, { files: [file] })
+            }
+
+            const ffmpeg = createFFmpeg();
+            await ffmpeg.load();
+
+            ffmpeg.FS('writeFile', 'video.mp4', await fetchFile(`${post.url}/DASH_${highestQuality}.mp4`));
+            ffmpeg.FS('writeFile', 'audio.mp4', await fetchFile(`${post.url}/DASH_audio.mp4`));
+            await ffmpeg.run('-i', 'video.mp4', '-i', 'audio.mp4', '-c', 'copy', 'output.mp4');
+
+            let data = ffmpeg.FS('readFile', 'output.mp4')
+            data = new Uint8Array(data.buffer);
+            await fs.writeFile('./output.mp4', Buffer.from(data));
+
+            const file = { attachment: "./output.mp4", name: `${post.id}.mp4` }
+            if (post.over_18 || post.spoiler) file.name = `SPOILER_${post.id}.mp4`
+            await discordChannel.send(post.title, { files: [file] })
+        } catch (error) {
+            this.sendRedditPostAsText(discordChannel, post)
+        } finally {
+            await this.deleteVideoFile()
+        }
+    }
+
+    async deleteVideoFile() {
+        try { await fs.unlink('./output.mp4') } 
+        catch (error) { console.log(error) }
+    }
+
+    async getHighestQuality(url) {
+        const availableQualities = [720, 480, 360, 240]
+    
+        for (const quality of availableQualities) {
+            const response = await fetch(`${url}/DASH_${quality}.mp4`)
+            if (response.status == 200) return quality
+        }
+
+        throw new Error("Impossible de récupérer la qualité de la vidéo") 
+    }
+
     async sendRedditPostAsImage(discordChannel, post) {
         if (await this.isImageSizeBiggerThan8Mb(post.url))
             return await this.sendRedditPostAsText(discordChannel, post)
@@ -71,21 +124,25 @@ export class RedditPull {
     }
 
     async isImageSizeBiggerThan8Mb(urlImage) {
-        const response =  await fetch(urlImage)
+        const response = await fetch(urlImage)
         const imageSize = response.headers.get("content-length")
         return imageSize > 8000000
     }
 
     async sendRedditPostAsGallery(discordChannel, post) {
-        const files = []
-        for (const item of post.gallery_data.items) {
-            const media = post.media_metadata[item.media_id]
-            const attachment = media.s.u
-            const file = { attachment: attachment } 
-            if (post.over_18 || post.spoiler) file.name = `SPOILER_${item.media_id}.${media.m.split('/').pop()}`
-            files.push(file)
+        try {
+            const files = []
+            for (const item of post.gallery_data.items) {
+                const media = post.media_metadata[item.media_id]
+                const attachment = media.s.u
+                const file = { attachment: attachment } 
+                if (post.over_18 || post.spoiler) file.name = `SPOILER_${item.media_id}.${media.m.split('/').pop()}`
+                files.push(file)
+            }
+            await discordChannel.send(post.title, { files: files })
+        } catch (error) {
+            this.sendRedditPostAsText(discordChannel, post)
         }
-        await discordChannel.send(post.title, { files: files })
     }
     
     getDiscordChannel(interaction) {
