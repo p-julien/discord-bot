@@ -51,18 +51,18 @@ export class RedditPull {
     }
 
     async sendRedditPostAsImage(discordChannel, post) {
-        const isImageSizeLessThan8Mb = await this.isImageSizeLessThan8Mb(post.url)
-        if (!isImageSizeLessThan8Mb) return
+        if (await this.isImageSizeBiggerThan8Mb(post.url))
+            return await this.sendRedditPostAsText(discordChannel, post)
 
         const file = { attachment: post.url }                
         if (post.over_18 || post.spoiler) file.name = `SPOILER_${post.id}.${this.getExtension(post.url)}`
         await discordChannel.send(post.title, { files: [file] })
     }
 
-    async isImageSizeLessThan8Mb(urlImage) {
+    async isImageSizeBiggerThan8Mb(urlImage) {
         const response =  await fetch(urlImage)
         const imageSize = response.headers.get("content-length")
-        return imageSize < 8000000
+        return imageSize > 8000000
     }
 
     async sendRedditPostAsGallery(discordChannel, post) {
