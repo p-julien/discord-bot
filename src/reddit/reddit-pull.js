@@ -43,12 +43,22 @@ export class RedditPull {
         if (this.IsUrlAnImage(post.url))
             return await this.sendRedditPostAsImage(discordChannel, post)
 
+        if (post.selftext !== '')
+            return await this.sendRedditPostAsContentText(discordChannel, post)
+
         await this.sendRedditPostAsText(discordChannel, post)
     }
 
     async sendRedditPostAsText(discordChannel, post) {
         if (post.over_18 || post.spoiler) post.url = `|| ${post.url} ||`
         await discordChannel.send(`${post.title}\n${post.url}`)
+    }
+
+    async sendRedditPostAsContentText(discordChannel, post) {
+        if (post.over_18 || post.spoiler) 
+            return await this.sendRedditPostAsText(discordChannel, post)
+
+        await discordChannel.send(post.title + "\n```" + post.selftext + "```")
     }
 
     async sendRedditPostAsImage(discordChannel, post) {
