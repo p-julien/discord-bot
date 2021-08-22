@@ -47,7 +47,9 @@ export class RedditPull {
     }
 
     async sendRedditPostAsText(discordChannel, post) {
-        await discordChannel.send(`${post.title}\n${post.url}`)
+        let formattedPost = `${post.title}\n${post.url} `
+        if (post.over_18 || post.spoiler) formattedPost = `||${formattedPost}||`
+        await discordChannel.send(formattedPost)
     }
 
     async sendRedditPostAsImage(discordChannel, post) {
