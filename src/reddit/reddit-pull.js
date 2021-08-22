@@ -24,8 +24,8 @@ export class RedditPull {
         try {
             if (discordChannel.topic == null) return;
 
-            const reddit = this.snoowrap.getSubreddit(discordChannel.topic) 
-            const posts = await reddit.getTop({ time: 'day', limit: 3 })
+            const subreddit = this.snoowrap.getSubreddit(discordChannel.topic) 
+            const posts = await subreddit.getTop({ time: 'day', limit: 3 })
             
             for (const post of posts) 
                 await this.sendRedditPostToDiscordChannel(discordChannel, post)
@@ -37,37 +37,44 @@ export class RedditPull {
     async sendRedditPostToDiscordChannel(discordChannel, post) {
         post.title = `**${post.title}**`
 
-        if (post.is_gallery) {
-            const files = []
-            post.gallery_data.items.forEach(item => {
-                const media = post.media_metadata[item.media_id]
-                const attachment = media.s.u
-                const file = { attachment: attachment } 
-                if (post.over_18) file.name = `SPOILER_${item.media_id}.${media.m.split('/').pop()}`
-                files.push(file)
-            })
-            await discordChannel.send(post.title, { files: files })
-            return
-        }
+        if (post.is_gallery) 
+            return await this.sendRedditPostAsGallery(discordChannel, post)
 
-        if (this.isImage(post.url)) {
-            const isImageLessThan8Mb = await this.isImageLessThan8Mb(post.url)
-            
-            if (isImageLessThan8Mb) {
-                const file = { attachment: post.url }                
-                if (post.over_18) file.name = `SPOILER_${post.id}.${this.getExtension(post.url)}`
-                await discordChannel.send(post.title, { files: [file] })
-                return
-            }
-        }
+        if (this.IsUrlAnImage(post.url))
+            return await this.sendRedditPostAsImage(discordChannel, post)
 
+        await this.sendRedditPostAsText(discordChannel, post)
+    }
+
+    async sendRedditPostAsText(discordChannel, post) {
         await discordChannel.send(`${post.title}\n${post.url}`)
     }
 
-    async isImageLessThan8Mb(urlImage) {
+    async sendRedditPostAsImage(discordChannel, post) {
+        const isImageSizeLessThan8Mb = await this.isImageSizeLessThan8Mb(post.url)
+        if (!isImageSizeLessThan8Mb) return
+
+        const file = { attachment: post.url }                
+        if (post.over_18 || post.spoiler) file.name = `SPOILER_${post.id}.${this.getExtension(post.url)}`
+        await discordChannel.send(post.title, { files: [file] })
+    }
+
+    async isImageSizeLessThan8Mb(urlImage) {
         const response =  await fetch(urlImage)
         const imageSize = response.headers.get("content-length")
         return imageSize < 8000000
+    }
+
+    async sendRedditPostAsGallery(discordChannel, post) {
+        const files = []
+        for (const item of post.gallery_data.items) {
+            const media = post.media_metadata[item.media_id]
+            const attachment = media.s.u
+            const file = { attachment: attachment } 
+            if (post.over_18 || post.spoiler) file.name = `SPOILER_${item.media_id}.${media.m.split('/').pop()}`
+            files.push(file)
+        }
+        await discordChannel.send(post.title, { files: files })
     }
     
     getDiscordChannel(interaction) {
@@ -84,7 +91,7 @@ export class RedditPull {
         return discordChannels
     }
 
-    isImage(url) {
+    IsUrlAnImage(url) {
         const extensions = ['jpg', 'jpeg', 'png', 'gif']
         const extension = this.getExtension(url)
         return extensions.includes(extension)
