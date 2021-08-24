@@ -37,21 +37,25 @@ export class RedditPull {
     }
 
     async sendRedditPostToDiscordChannel(discordChannel, post) {
-        post.title = `**${post.title}**`
+        try {
+            post.title = `**${post.title}**`
 
-        if (post.is_gallery) 
-            return await this.sendRedditPostAsGallery(discordChannel, post)
-
-        if (this.IsUrlAnImage(post.url))
-            return await this.sendRedditPostAsImage(discordChannel, post)
-
-        if (post.is_video)
-            return await this.sendRedditPostAsVideo(discordChannel, post)
-
-        if (post.selftext !== '')
-            return await this.sendRedditPostAsContentText(discordChannel, post)
-
-        await this.sendRedditPostAsText(discordChannel, post)
+            if (post.is_gallery) 
+                return await this.sendRedditPostAsGallery(discordChannel, post)
+    
+            if (this.IsUrlAnImage(post.url))
+                return await this.sendRedditPostAsImage(discordChannel, post)
+    
+            if (post.is_video)
+                return await this.sendRedditPostAsVideo(discordChannel, post)
+    
+            if (post.selftext !== '')
+                return await this.sendRedditPostAsContentText(discordChannel, post)
+    
+            await this.sendRedditPostAsText(discordChannel, post)
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     async sendRedditPostAsText(discordChannel, post) {
