@@ -1,5 +1,5 @@
-export function getDiscordChannel(interaction) {
-    for (const [key, value] of this.client.channels.cache)
+export function getDiscordChannel(client, interaction) {
+    for (const [key, value] of client.channels.cache)
         if (key === interaction.channel_id)
             return value
 

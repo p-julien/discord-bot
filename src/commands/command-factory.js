@@ -18,7 +18,7 @@ export class CommandFactory {
         try {
             const username = interaction.member.user.username
             const commandName = interaction.data.name
-            const channelName = getDiscordChannel(interaction).name
+            const channelName = getDiscordChannel(this.client, interaction).name
 
             this.logger.info(`${username} asked for the command ${commandName} in the channel ${channelName}`)
             

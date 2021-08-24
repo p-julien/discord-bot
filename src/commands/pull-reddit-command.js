@@ -6,11 +6,12 @@ export class RedditPullCommand extends RedditPull {
     
     constructor(client, interaction) {
         super(client)
+        this.client = client;
         this.interaction = interaction;
     }
 
     async run() {
-        const discordChannel = getDiscordChannel(this.interaction)
+        const discordChannel = getDiscordChannel(this.client, this.interaction)
         this.client.api.interactions(this.interaction.id, this.interaction.token)
             .callback
             .post({

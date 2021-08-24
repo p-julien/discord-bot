@@ -2,7 +2,7 @@ import Snoowrap from 'snoowrap'
 import fetch from 'node-fetch'
 import { promises as fs } from 'fs'
 import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg'
-import { Logger } from '../utils/log';
+import { Logger } from '../utils/log.js';
 
 export class RedditPull {
     
@@ -29,7 +29,7 @@ export class RedditPull {
     }
 
     async sendRedditPostsToDiscordChannel(discordChannel) {
-        this.logger.info(`Start of sending posts on channel ${discordChannel.name}! [topic: ${discordChannel.topic}]`)
+        this.logger.info(`Start of sending posts on channel ${discordChannel.name} [topic: ${discordChannel.topic}]`)
         try {
             if (discordChannel.topic == null) return;
 
