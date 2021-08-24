@@ -39,6 +39,7 @@ export class CommandFactory {
 
             throw new Error(`Unknown command: ${commandName}`)
         } catch (error) {
+            this.logger.error(error)
             return new UnknownCommand(this.client, interaction)
         }
     }

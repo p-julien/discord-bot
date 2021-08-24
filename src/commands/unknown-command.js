@@ -23,6 +23,6 @@ export class UnknownCommand {
     getEmbedMessage() {
         return new MessageEmbed()
             .setColor('#E6742B')
-            .setTitle(`Sorry I didn't know the command ${this.interaction.name}`)
+            .setTitle(`Sorry I didn't know the command ${this.interaction.data.name} 😕`)
     }
 }
