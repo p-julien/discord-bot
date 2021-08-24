@@ -82,24 +82,26 @@ export class RedditPull {
 
             ffmpeg.FS('writeFile', 'video.mp4', await fetchFile(`${post.url}/DASH_${highestQuality}.mp4`));
             ffmpeg.FS('writeFile', 'audio.mp4', await fetchFile(`${post.url}/DASH_audio.mp4`));
-            await ffmpeg.run('-i', 'video.mp4', '-i', 'audio.mp4', '-c', 'copy', 'output.mp4');
+            await ffmpeg.run('-i', 'video.mp4', '-i', 'audio.mp4', '-c', 'copy', `${post.id}.mp4`);
 
-            let data = ffmpeg.FS('readFile', 'output.mp4')
+            let data = ffmpeg.FS('readFile', `${post.id}.mp4`)
             data = new Uint8Array(data.buffer);
-            await fs.writeFile('./output.mp4', Buffer.from(data));
+            await fs.writeFile(`./${post.id}.mp4`, Buffer.from(data));
 
-            const file = { attachment: "./output.mp4", name: `${post.id}.mp4` }
+            ffmpeg.exit()
+
+            const file = { attachment: `./${post.id}.mp4`, name: `${post.id}.mp4` }
             if (post.over_18 || post.spoiler) file.name = `SPOILER_${post.id}.mp4`
             await discordChannel.send(post.title, { files: [file] })
         } catch (error) {
             this.sendRedditPostAsText(discordChannel, post)
         } finally {
-            await this.deleteVideoFile()
+            await this.deleteVideoFile(`./${post.id}.mp4`)
         }
     }
 
-    async deleteVideoFile() {
-        try { await fs.unlink('./output.mp4') } 
+    async deleteVideoFile(path) {
+        try { await fs.unlink(path) } 
         catch (error) { console.log(error) }
     }
 
