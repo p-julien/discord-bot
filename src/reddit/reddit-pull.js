@@ -60,7 +60,7 @@ export class RedditPull {
     }
 
     async sendRedditPostAsContentText(discordChannel, post) {
-        if (post.over_18 || post.spoiler) 
+        if (post.over_18 || post.spoiler || post.selftext.length > 2000) 
             return await this.sendRedditPostAsText(discordChannel, post)
 
         await discordChannel.send(post.title + "\n```" + post.selftext + "```")
