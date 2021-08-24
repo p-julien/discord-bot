@@ -1,5 +1,6 @@
 import { MessageEmbed } from 'discord.js';
 import { RedditPull } from '../reddit/reddit-pull.js';
+import { getDiscordChannel } from '../utils/discord-interaction.js';
 
 export class RedditPullCommand extends RedditPull {
     
@@ -9,7 +10,7 @@ export class RedditPullCommand extends RedditPull {
     }
 
     async run() {
-        const discordChannel = this.getDiscordChannel(this.interaction)
+        const discordChannel = getDiscordChannel(this.interaction)
         this.client.api.interactions(this.interaction.id, this.interaction.token)
             .callback
             .post({

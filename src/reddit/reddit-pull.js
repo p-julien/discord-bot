@@ -1,13 +1,14 @@
-import { MessageAttachment } from 'discord.js'
 import Snoowrap from 'snoowrap'
 import fetch from 'node-fetch'
 import { promises as fs } from 'fs'
 import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg'
+import { Logger } from '../utils/log';
 
 export class RedditPull {
     
     constructor(client) {
         this.client = client;
+        this.logger = new Logger();
         this.snoowrap = new Snoowrap({
             userAgent: process.env.REDDIT_USER_AGENT,
             clientId: process.env.REDDIT_CLIENT_ID,
@@ -17,12 +18,18 @@ export class RedditPull {
     }
 
     async sendRedditPostsToDiscordChannels() {
-        const discordChannels = this.getDiscordChannels()
-        for (const discordChannel of discordChannels) 
-            await this.sendRedditPostsToDiscordChannel(discordChannel)
+        this.logger.info("Start of sending posts...")
+        try {
+            const discordChannels = this.getDiscordChannels()
+            for (const discordChannel of discordChannels) 
+                await this.sendRedditPostsToDiscordChannel(discordChannel)
+        } catch (error) {
+            this.logger.error(error)
+        }
     }
 
     async sendRedditPostsToDiscordChannel(discordChannel) {
+        this.logger.info(`Start of sending posts on channel ${discordChannel.name}! [topic: ${discordChannel.topic}]`)
         try {
             if (discordChannel.topic == null) return;
 
@@ -32,11 +39,12 @@ export class RedditPull {
             for (const post of posts) 
                 await this.sendRedditPostToDiscordChannel(discordChannel, post)
         } catch (error) {
-            console.log(error)
+            this.logger.error(error)
         }
     }
 
     async sendRedditPostToDiscordChannel(discordChannel, post) {
+        this.logger.info(`Start of sending post: ${post.title}`)
         try {
             post.title = `**${post.title}**`
 
@@ -54,16 +62,18 @@ export class RedditPull {
     
             await this.sendRedditPostAsText(discordChannel, post)
         } catch (error) {
-            console.log(error)
+            this.logger.error(error)
         }
     }
 
     async sendRedditPostAsText(discordChannel, post) {
+        this.logger.info(`Sending post as default...`)
         if (post.over_18 || post.spoiler) post.url = `|| ${post.url} ||`
         await discordChannel.send(`${post.title}\n${post.url}`)
     }
 
     async sendRedditPostAsContentText(discordChannel, post) {
+        this.logger.info(`Sending post as content text...`)
         if (post.over_18 || post.spoiler || post.selftext.length > 2000) 
             return await this.sendRedditPostAsText(discordChannel, post)
 
@@ -71,6 +81,7 @@ export class RedditPull {
     }
 
     async sendRedditPostAsVideo(discordChannel, post) {
+        this.logger.info(`Sending post as video...`)
         try {
             const highestQuality = await this.getHighestQuality(post.url)
             const response = await fetch(`${post.url}/DASH_audio.mp4`)
@@ -106,7 +117,7 @@ export class RedditPull {
 
     async deleteVideoFile(path) {
         try { await fs.unlink(path) } 
-        catch (error) { console.log(error) }
+        catch (error) { this.logger.error(error) }
     }
 
     async getHighestQuality(url) {
@@ -121,6 +132,7 @@ export class RedditPull {
     }
 
     async sendRedditPostAsImage(discordChannel, post) {
+        this.logger.info(`Sending post as image...`)
         if (await this.isImageSizeBiggerThan8Mb(post.url))
             return await this.sendRedditPostAsText(discordChannel, post)
 
@@ -136,6 +148,7 @@ export class RedditPull {
     }
 
     async sendRedditPostAsGallery(discordChannel, post) {
+        this.logger.info(`Sending post as gallery...`)
         try {
             const files = []
             for (const item of post.gallery_data.items) {
@@ -151,12 +164,6 @@ export class RedditPull {
         }
     }
     
-    getDiscordChannel(interaction) {
-        for (const [key, value] of this.client.channels.cache)
-            if (key === interaction.channel_id)
-                return value
-    }
-
     getDiscordChannels() {
         const discordChannels = []
         for (const [key, value] of this.client.channels.cache)

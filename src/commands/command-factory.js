@@ -4,17 +4,23 @@ import { WhereIsDocheCommand } from './doche-location-command.js'
 import { AdviceCommand } from './advice-command.js'
 import { RedditPullCommand } from './pull-reddit-command.js'
 import { RestartRedditPullCommand } from './restart-pull-reddit-command.js'
+import { Logger } from '../utils/log.js'
+import { getDiscordChannel } from '../utils/discord-interaction.js'
 
 export class CommandFactory {
 
     constructor(client) {
         this.client = client;
+        this.logger = new Logger();
     }
 
     getCommand(interaction) {
         try {
+            const username = interaction.member.user.username
             const commandName = interaction.data.name
-            console.log(`${interaction.member.user.username} asked for the command: ${commandName}`)
+            const channelName = getDiscordChannel(interaction).name
+
+            this.logger.info(`${username} asked for the command ${commandName} in the channel ${channelName}`)
             
             if (commandName === "ping") 
                 return new PingCommand(this.client, interaction)
@@ -31,7 +37,7 @@ export class CommandFactory {
             if (commandName === "restart") 
                 return new RestartRedditPullCommand(this.client, interaction)
 
-            throw new Exception(`Unknown command: ${commandName}`)
+            throw new Error(`Unknown command: ${commandName}`)
         } catch (error) {
             return new UnknownCommand(this.client, interaction)
         }

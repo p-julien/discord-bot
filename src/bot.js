@@ -3,13 +3,17 @@ import { CommandFactory } from './commands/command-factory.js'
 import { RedditPull } from './reddit/reddit-pull.js'
 import dotenv from 'dotenv';
 import cron from 'node-cron'
+import { Logger } from './utils/log.js';
 
 dotenv.config()
 const client = new Client();
+const logger = new Logger();
 
 client.on('ready', async () => {
-    console.log(`Logged in as ${client.user.tag}!`);
+    logger.info(`Logged in as ${client.user.tag}!`);
+    
     cron.schedule('0 20 * * *', async () => {
+        logger.info("It's time to send reddit posts!")
         const redditPull = new RedditPull(client)
         await redditPull.sendRedditPostsToDiscordChannels()
     });
@@ -20,7 +24,7 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
         const commandFactory = new CommandFactory(client)
         await commandFactory.getCommand(interaction).run()
     } catch (error) {
-        console.error(`An error occured while responding to the command: ${interaction.data.name}`)
+        logger.error(`An error occured while responding to the command: ${interaction.data.name}`)
     }
 })
 
