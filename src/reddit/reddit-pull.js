@@ -67,7 +67,7 @@ export class RedditPull {
         if (post.over_18 || post.spoiler || post.selftext.length > 2000) 
             return await this.sendRedditPostAsText(discordChannel, post)
 
-        await discordChannel.send(post.title + "\n```" + post.selftext + "```")
+        await discordChannel.send(post.title + "\n```md\n" + post.selftext + "\n```")
     }
 
     async sendRedditPostAsVideo(discordChannel, post) {
