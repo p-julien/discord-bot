@@ -54,8 +54,8 @@ export class RedditPull {
             if (this.IsUrlAnImage(post.url))
                 return await this.sendRedditPostAsImage(discordChannel, post)
     
-            if (post.is_video)
-                return await this.sendRedditPostAsVideo(discordChannel, post)
+            // if (post.is_video)
+            //     return await this.sendRedditPostAsVideo(discordChannel, post)
     
             if (post.selftext !== '')
                 return await this.sendRedditPostAsContentText(discordChannel, post)
