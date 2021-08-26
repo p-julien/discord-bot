@@ -6,7 +6,6 @@ export class RedditPullCommand extends RedditPull {
     
     constructor(client, interaction) {
         super(client)
-        this.client = client;
         this.interaction = interaction;
     }
 
