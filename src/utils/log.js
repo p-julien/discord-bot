@@ -7,6 +7,9 @@ export class Logger {
 
     error(error) {
         const datetime = new Date().toLocaleString()
-        console.error(`[${datetime}] ${error}`)
+        if (error.stack == undefined) 
+            return console.error(`[${datetime}] ${error}`)
+            
+        console.error(`[${datetime}] ${error.stack}`)
     }
 }
