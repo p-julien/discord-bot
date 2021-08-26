@@ -1,5 +1,6 @@
 import Snoowrap from 'snoowrap'
 import fetch from 'node-fetch'
+import { MessageEmbed } from 'discord.js';
 import { promises as fs } from 'fs'
 import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg'
 import { Logger } from '../utils/log.js';
@@ -40,6 +41,14 @@ export class RedditPull {
                 await this.sendRedditPostToDiscordChannel(discordChannel, post)
         } catch (error) {
             this.logger.error(error)
+            await discordChannel.send({ 
+                embed: {
+                    color: 0xE6742B,
+                    title: discordChannel.topic,
+                    url: `https://www.reddit.com/r/${discordChannel.topic}`,
+                    description: `Le reddit /r/${discordChannel.topic} ne semble pas disponible`,
+                } 
+            })
         }
     }
 
