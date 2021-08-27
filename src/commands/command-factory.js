@@ -11,7 +11,6 @@ export class CommandFactory {
 
     constructor(client) {
         this.client = client;
-        this.logger = new Logger();
     }
 
     getCommand(interaction) {
@@ -20,7 +19,7 @@ export class CommandFactory {
             const commandName = interaction.data.name
             const channelName = getDiscordChannel(this.client, interaction).name
 
-            this.logger.info(`${username} asked for the command ${commandName} in the channel ${channelName}`)
+            Logger.info(`${username} asked for the command ${commandName} in the channel ${channelName}`)
             
             if (commandName === "ping") 
                 return new PingCommand(this.client, interaction)
@@ -39,7 +38,7 @@ export class CommandFactory {
 
             throw new Error(`Unknown command: ${commandName}`)
         } catch (error) {
-            this.logger.error(error)
+            Logger.error(error)
             return new UnknownCommand(this.client, interaction)
         }
     }

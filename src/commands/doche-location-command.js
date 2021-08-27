@@ -1,4 +1,4 @@
-import { MessageEmbed } from 'discord.js';
+import {MessageEmbed} from 'discord.js';
 import fetch from 'node-fetch';
 
 export class WhereIsDocheCommand {
@@ -30,7 +30,6 @@ export class WhereIsDocheCommand {
 
     async getDocheLocation() {
         const response  = await fetch('http://codem.tk/ou-suis-je')
-        const docheLocation = await response.text()
-        return docheLocation
+        return await response.text()
     }
 }

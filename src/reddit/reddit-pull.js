@@ -1,6 +1,5 @@
 import Snoowrap from 'snoowrap'
 import fetch from 'node-fetch'
-import { MessageEmbed } from 'discord.js';
 import { promises as fs } from 'fs'
 import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg'
 import { Logger } from '../utils/log.js';
@@ -9,7 +8,6 @@ export class RedditPull {
     
     constructor(client) {
         this.client = client;
-        this.logger = new Logger();
         this.snoowrap = new Snoowrap({
             userAgent: process.env.REDDIT_USER_AGENT,
             clientId: process.env.REDDIT_CLIENT_ID,
@@ -19,18 +17,18 @@ export class RedditPull {
     }
 
     async sendRedditPostsToDiscordChannels() {
-        this.logger.info("Start of sending posts...")
+        Logger.info("Start of sending posts...")
         try {
             const discordChannels = this.getDiscordChannels()
             for (const discordChannel of discordChannels) 
                 await this.sendRedditPostsToDiscordChannel(discordChannel)
         } catch (error) {
-            this.logger.error(error)
+            Logger.error(error)
         }
     }
 
     async sendRedditPostsToDiscordChannel(discordChannel) {
-        this.logger.info(`Start of sending posts on channel ${discordChannel.name} [topic: ${discordChannel.topic}]`)
+        Logger.info(`Start of sending posts on channel ${discordChannel.name} [topic: ${discordChannel.topic}]`)
         try {
             if (discordChannel.topic == null) return;
 
@@ -40,7 +38,7 @@ export class RedditPull {
             for (const post of posts) 
                 await this.sendRedditPostToDiscordChannel(discordChannel, post)
         } catch (error) {
-            this.logger.error(error)
+            Logger.error(error)
             await discordChannel.send({ 
                 embed: {
                     color: 0xE6742B,
@@ -53,7 +51,7 @@ export class RedditPull {
     }
 
     async sendRedditPostToDiscordChannel(discordChannel, post) {
-        this.logger.info(`Start of sending post: ${post.title}`)
+        Logger.info(`Start of sending post: ${post.title}`)
         try {
             post.title = `**${post.title}**`
 
@@ -71,18 +69,18 @@ export class RedditPull {
     
             await this.sendRedditPostAsText(discordChannel, post)
         } catch (error) {
-            this.logger.error(error)
+            Logger.error(error)
         }
     }
 
     async sendRedditPostAsText(discordChannel, post) {
-        this.logger.info(`Sending post as default...`)
+        Logger.info(`Sending post as default...`)
         if (post.over_18 || post.spoiler) post.url = `|| ${post.url} ||`
         await discordChannel.send(`${post.title}\n${post.url}`)
     }
 
     async sendRedditPostAsContentText(discordChannel, post) {
-        this.logger.info(`Sending post as content text...`)
+        Logger.info(`Sending post as content text...`)
         if (post.over_18 || post.spoiler || post.selftext.length > 2000) 
             return await this.sendRedditPostAsText(discordChannel, post)
 
@@ -90,12 +88,12 @@ export class RedditPull {
     }
 
     async sendRedditPostAsVideo(discordChannel, post) {
-        this.logger.info(`Sending post as video...`)
+        Logger.info(`Sending post as video...`)
         try {
             const highestQuality = await this.getHighestQuality(post.url)
             const response = await fetch(`${post.url}/DASH_audio.mp4`)
 
-            if (response.status != 200) {
+            if (response.status !== 200) {
                 const file = { attachment: `${post.url}/DASH_${highestQuality}.mp4`, name: `${post.id}.mp4` }
                 if (post.over_18 || post.spoiler) file.name = `SPOILER_${post.id}.mp4`
                 return await discordChannel.send(post.title, { files: [file] })
@@ -118,7 +116,7 @@ export class RedditPull {
             if (post.over_18 || post.spoiler) file.name = `SPOILER_${post.id}.mp4`
             await discordChannel.send(post.title, { files: [file] })
         } catch (error) {
-            this.sendRedditPostAsText(discordChannel, post)
+            await this.sendRedditPostAsText(discordChannel, post)
         } finally {
             await this.deleteVideoFile(`./${post.id}.mp4`)
         }
@@ -126,7 +124,7 @@ export class RedditPull {
 
     async deleteVideoFile(path) {
         try { await fs.unlink(path) } 
-        catch (error) { this.logger.error(error) }
+        catch (error) { Logger.error(error) }
     }
 
     async getHighestQuality(url) {
@@ -134,14 +132,14 @@ export class RedditPull {
     
         for (const quality of availableQualities) {
             const response = await fetch(`${url}/DASH_${quality}.mp4`)
-            if (response.status == 200) return quality
+            if (response.status === 200) return quality
         }
 
         throw new Error("Impossible de récupérer la qualité de la vidéo") 
     }
 
     async sendRedditPostAsImage(discordChannel, post) {
-        this.logger.info(`Sending post as image...`)
+        Logger.info(`Sending post as image...`)
         if (await this.isImageSizeBiggerThan8Mb(post.url))
             return await this.sendRedditPostAsText(discordChannel, post)
 
@@ -157,7 +155,7 @@ export class RedditPull {
     }
 
     async sendRedditPostAsGallery(discordChannel, post) {
-        this.logger.info(`Sending post as gallery...`)
+        Logger.info(`Sending post as gallery...`)
         try {
             const files = []
             for (const item of post.gallery_data.items) {
@@ -169,7 +167,7 @@ export class RedditPull {
             }
             await discordChannel.send(post.title, { files: files })
         } catch (error) {
-            this.sendRedditPostAsText(discordChannel, post)
+            await this.sendRedditPostAsText(discordChannel, post)
         }
     }
     
