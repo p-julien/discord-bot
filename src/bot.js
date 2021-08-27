@@ -27,4 +27,4 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
     }
 })
 
-client.login(process.env.DISCORD_API_KEY);
+client.login(process.env.DISCORD_API_KEY).catch(err => Logger.error(err));
