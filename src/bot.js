@@ -4,15 +4,15 @@ import { RedditPull } from './reddit/reddit-pull.js'
 import { Logger } from './utils/log.js';
 import dotenv from 'dotenv';
 import cron from 'node-cron'
+import chalk from "chalk";
 
 dotenv.config()
 const client = new Client();
 
 client.on('ready', async () => {
-    Logger.info(`Logged in as ${client.user.tag}!`);
+    Logger.info(`Logged in as ${chalk.bold.whiteBright(client.user.tag)}!`);
     
     cron.schedule('0 20 * * *', async () => {
-        Logger.info("It's time to send reddit posts!")
         const redditPull = new RedditPull(client)
         await redditPull.sendRedditPostsToDiscordChannels()
     }, { scheduled: true, timezone: "Europe/Paris" });

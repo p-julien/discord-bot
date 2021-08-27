@@ -6,6 +6,7 @@ import { RedditPullCommand } from './pull-reddit-command.js'
 import { RestartRedditPullCommand } from './restart-pull-reddit-command.js'
 import { Logger } from '../utils/log.js'
 import { getDiscordChannel } from '../utils/discord-interaction.js'
+import chalk from "chalk";
 
 export class CommandFactory {
 
@@ -19,7 +20,7 @@ export class CommandFactory {
             const commandName = interaction.data.name
             const channelName = getDiscordChannel(this.client, interaction).name
 
-            Logger.info(`${username} asked for the command ${commandName} in the channel ${channelName}`)
+            Logger.info(`${chalk.whiteBright.bold(username)} asked for the command ${chalk.whiteBright.bold(commandName)} in the channel ${chalk.whiteBright.bold(channelName)}`)
             
             if (commandName === "ping") 
                 return new PingCommand(this.client, interaction)

@@ -3,6 +3,7 @@ import fetch from 'node-fetch'
 import { promises as fs } from 'fs'
 import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg'
 import { Logger } from '../utils/log.js';
+import chalk from "chalk";
 
 export class RedditPull {
     
@@ -17,18 +18,20 @@ export class RedditPull {
     }
 
     async sendRedditPostsToDiscordChannels() {
-        Logger.info("Start of sending posts...")
+        Logger.verbose("Start of sending posts...")
         try {
             const discordChannels = this.getDiscordChannels()
             for (const discordChannel of discordChannels) 
                 await this.sendRedditPostsToDiscordChannel(discordChannel)
+
+            Logger.info(`Finished sending posts successfully! See you tomorrow ✨`)
         } catch (error) {
             Logger.error(error)
         }
     }
 
     async sendRedditPostsToDiscordChannel(discordChannel) {
-        Logger.info(`Start of sending posts on channel ${discordChannel.name} [topic: ${discordChannel.topic}]`)
+        Logger.info(`Start of sending posts on channel ${chalk.whiteBright.bold(discordChannel.name)} [topic: ${chalk.whiteBright.bold(discordChannel.topic)}]`)
         try {
             if (discordChannel.topic == null) return;
 
@@ -51,22 +54,22 @@ export class RedditPull {
     }
 
     async sendRedditPostToDiscordChannel(discordChannel, post) {
-        Logger.info(`Start of sending post: ${post.title}`)
+        Logger.verbose(`Start of sending post: ${post.title}`)
         try {
             post.title = `**${post.title}**`
 
-            if (post.is_gallery) 
+            if (post.is_gallery)
                 return await this.sendRedditPostAsGallery(discordChannel, post)
-    
+
             if (this.IsUrlAnImage(post.url))
                 return await this.sendRedditPostAsImage(discordChannel, post)
-    
+
             // if (post.is_video)
             //     return await this.sendRedditPostAsVideo(discordChannel, post)
-    
+
             if (post.selftext !== '')
                 return await this.sendRedditPostAsContentText(discordChannel, post)
-    
+
             await this.sendRedditPostAsText(discordChannel, post)
         } catch (error) {
             Logger.error(error)
@@ -74,29 +77,29 @@ export class RedditPull {
     }
 
     async sendRedditPostAsText(discordChannel, post) {
-        Logger.info(`Sending post as default...`)
+        Logger.verbose(`Sending post as default...`)
         if (post.over_18 || post.spoiler) post.url = `|| ${post.url} ||`
         await discordChannel.send(`${post.title}\n${post.url}`)
     }
 
     async sendRedditPostAsContentText(discordChannel, post) {
-        Logger.info(`Sending post as content text...`)
-        if (post.over_18 || post.spoiler || post.selftext.length > 2000) 
+        Logger.verbose(`Sending post as content text...`)
+        if (post.over_18 || post.spoiler || post.selftext.length > 2000)
             return await this.sendRedditPostAsText(discordChannel, post)
 
         await discordChannel.send(post.title + "\n```md\n" + post.selftext + "\n```")
     }
 
     async sendRedditPostAsVideo(discordChannel, post) {
-        Logger.info(`Sending post as video...`)
+        Logger.verbose(`Sending post as video...`)
         try {
             const highestQuality = await this.getHighestQuality(post.url)
             const response = await fetch(`${post.url}/DASH_audio.mp4`)
 
             if (response.status !== 200) {
-                const file = { attachment: `${post.url}/DASH_${highestQuality}.mp4`, name: `${post.id}.mp4` }
-                if (post.over_18 || post.spoiler) file.name = `SPOILER_${post.id}.mp4`
-                return await discordChannel.send(post.title, { files: [file] })
+                const dashFile = { attachment: `${post.url}/DASH_${highestQuality}.mp4`, name: `${post.id}.mp4` }
+                if (post.over_18 || post.spoiler) dashFile.name = `SPOILER_${post.id}.mp4`
+                return await discordChannel.send(post.title, { files: [dashFile] })
             }
 
             const ffmpeg = createFFmpeg();
@@ -139,11 +142,11 @@ export class RedditPull {
     }
 
     async sendRedditPostAsImage(discordChannel, post) {
-        Logger.info(`Sending post as image...`)
+        Logger.verbose(`Sending post as image...`)
         if (await this.isImageSizeBiggerThan8Mb(post.url))
             return await this.sendRedditPostAsText(discordChannel, post)
 
-        const file = { attachment: post.url }                
+        const file = { attachment: post.url }
         if (post.over_18 || post.spoiler) file.name = `SPOILER_${post.id}.${this.getExtension(post.url)}`
         await discordChannel.send(post.title, { files: [file] })
     }
@@ -155,7 +158,7 @@ export class RedditPull {
     }
 
     async sendRedditPostAsGallery(discordChannel, post) {
-        Logger.info(`Sending post as gallery...`)
+        Logger.verbose(`Sending post as gallery...`)
         try {
             const files = []
             for (const item of post.gallery_data.items) {
