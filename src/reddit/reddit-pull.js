@@ -175,9 +175,13 @@ export class RedditPull {
     
     getDiscordChannels() {
         const discordChannels = []
-        for (const [key, value] of this.client.channels.cache)
-            if (value.parent !== null && value.parent.name === "Reddit")
-                discordChannels.push(value)
+
+        for (const [key, value] of this.client.channels.cache) {
+            if (value.parent == null) continue 
+            if (!value.parent.name.toLowerCase().includes("reddit")) continue
+            discordChannels.push(value)
+        }
+        
         return discordChannels
     }
 
