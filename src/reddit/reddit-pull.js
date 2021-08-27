@@ -182,7 +182,7 @@ export class RedditPull {
             discordChannels.push(value)
         }
         
-        return discordChannels
+        return discordChannels.sort((a, b) => a.rawPosition - b.rawPosition)
     }
 
     IsUrlAnImage(url) {
