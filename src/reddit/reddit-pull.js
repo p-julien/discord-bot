@@ -175,6 +175,7 @@ export class RedditPull {
                 file.name = `SPOILER_${post.id}.mp4`;
             await discordChannel.send(post.title, { files: [file] });
         } catch (error) {
+            Logger.error(error);
             await this.sendRedditPostAsText(discordChannel, post);
         } finally {
             await this.deleteVideoFile(`./${post.id}.mp4`);
