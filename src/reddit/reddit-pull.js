@@ -21,7 +21,7 @@ export class RedditPull {
         Logger.verbose("Start of sending posts...");
 
         try {
-            const discordChannels = this.getDiscordChannels();
+            const discordChannels = this.getDiscordChannelsReddit();
             for (const discordChannel of discordChannels)
                 await this.sendRedditPostsToDiscordChannel(discordChannel);
 
@@ -36,6 +36,7 @@ export class RedditPull {
     }
 
     async sendPerformanceStatistics(timeTaken) {
+        Logger.info("Sending statistics to discord channel");
         try {
             const redditDiscordChannel = this.getDiscordChannels().find(
                 (c) => c.name === "reddit"
@@ -44,7 +45,9 @@ export class RedditPull {
             if (redditDiscordChannel == null) return;
 
             await redditDiscordChannel.send(
-                `Finished sending posts successfully in ${timeTaken} ms! See you tomorrow ✨`
+                `Finished sending posts successfully in ${Number(
+                    timeTaken
+                ).toFixed(2)} ms! See you tomorrow ✨`
             );
         } catch (error) {
             Logger.error(error);
@@ -238,12 +241,23 @@ export class RedditPull {
         }
     }
 
-    getDiscordChannels() {
+    getDiscordChannelsReddit() {
         const discordChannels = [];
 
         for (const [key, value] of this.client.channels.cache) {
             if (value.parent == null) continue;
             if (!value.parent.name.toLowerCase().includes("reddit")) continue;
+            discordChannels.push(value);
+        }
+
+        return discordChannels.sort((a, b) => a.rawPosition - b.rawPosition);
+    }
+
+    getDiscordChannels() {
+        const discordChannels = [];
+
+        for (const [key, value] of this.client.channels.cache) {
+            if (value.parent == null) continue;
             discordChannels.push(value);
         }
 

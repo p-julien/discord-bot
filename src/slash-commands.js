@@ -12,6 +12,9 @@ const commands = [
     new SlashCommandBuilder()
         .setName("ping")
         .setDescription("Pull the reddit submissions for the current channel"),
+    new SlashCommandBuilder()
+        .setName("restart")
+        .setDescription("Restart the reddit submissions"),
 ];
 // const commandFiles = fs
 //     .readdirSync("./commands")
@@ -26,12 +29,7 @@ const guildId = "939616453718581326";
 //     commands.push(command.data.toJSON());
 // }
 
-const token =
-    PROD === "true"
-        ? process.env.DISCORD_API_KEY_PROD
-        : process.env.DISCORD_API_KEY_DEBUG;
-
-const rest = new REST({ version: "9" }).setToken(token);
+const rest = new REST({ version: "9" }).setToken(process.env.DISCORD_API_KEY);
 
 async function updateSlashCommands() {
     try {

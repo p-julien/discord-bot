@@ -33,9 +33,4 @@ client.ws.on("INTERACTION_CREATE", async (interaction) => {
     }
 });
 
-const token =
-    process.env.PROD === "true"
-        ? process.env.DISCORD_API_KEY_PROD
-        : process.env.DISCORD_API_KEY_DEBUG;
-
-client.login(token).catch((err) => Logger.error(err));
+client.login(process.env.DISCORD_API_KEY).catch((err) => Logger.error(err));
