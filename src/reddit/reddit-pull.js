@@ -27,9 +27,6 @@ export class RedditPull {
 
             var timeTaken = performance.now() - startTime;
             await this.sendPerformanceStatistics(timeTaken);
-            Logger.info(
-                `Finished sending posts successfully in ${timeTaken} ms! See you tomorrow ✨`
-            );
         } catch (error) {
             Logger.error(error);
         }
