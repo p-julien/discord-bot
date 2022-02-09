@@ -4,45 +4,33 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 import dotenv from "dotenv";
 
 dotenv.config();
+const { DISCORD_API_KEY, DISCORD_CLIENT_ID, DISCORD_GUILD_ID } = process.env;
 
-const commands = [
-    new SlashCommandBuilder()
-        .setName("pull")
-        .setDescription("Ping the server of the bot"),
-    new SlashCommandBuilder()
-        .setName("ping")
-        .setDescription("Pull the reddit submissions for the current channel"),
-    new SlashCommandBuilder()
-        .setName("restart")
-        .setDescription("Restart the reddit submissions"),
-];
-// const commandFiles = fs
-//     .readdirSync("./commands")
-//     .filter((file) => file.endsWith(".js"));
+const pull = new SlashCommandBuilder()
+    .setName("pull")
+    .setDescription("Ping the server of the bot");
 
-// à récupérer via le .env.debug
-const clientId = "939621214513692733";
-const guildId = "939616453718581326";
+const ping = new SlashCommandBuilder()
+    .setName("ping")
+    .setDescription("Pull the reddit submissions for the current channel");
 
-// for (const file of commandFiles) {
-//     const command = require(`./commands/${file}`);
-//     commands.push(command.data.toJSON());
-// }
+const restart = new SlashCommandBuilder()
+    .setName("restart")
+    .setDescription("Restart the reddit submissions");
 
-const rest = new REST({ version: "9" }).setToken(process.env.DISCORD_API_KEY);
+const commands = [pull, ping, restart];
+const rest = new REST({ version: "9" }).setToken(DISCORD_API_KEY);
 
 async function updateSlashCommands() {
-    try {
-        console.log("Started refreshing application (/) commands.");
+    console.log("Started refreshing application (/) commands.");
 
-        await rest.put(Routes.applicationGuildCommands(clientId, guildId), {
-            body: commands,
-        });
+    const options = { body: commands };
+    await rest.put(
+        Routes.applicationGuildCommands(DISCORD_CLIENT_ID, DISCORD_GUILD_ID),
+        options
+    );
 
-        console.log("Successfully reloaded application (/) commands.");
-    } catch (error) {
-        console.error(error);
-    }
+    console.log("Successfully reloaded application (/) commands.");
 }
 
 updateSlashCommands();
