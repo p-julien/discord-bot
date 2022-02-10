@@ -1,11 +1,11 @@
 import Snoowrap from "snoowrap";
 import fetch from "node-fetch";
-import { promises as fs } from "fs";
-import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
+import * as fs from "fs";
 import { Logger } from "../utils/log.js";
 import chalk from "chalk";
 import prettyMilliseconds from "pretty-ms";
 import { MessageEmbed } from "discord.js";
+
 export class RedditPull {
     constructor(client) {
         this.client = client;
@@ -93,8 +93,8 @@ export class RedditPull {
             if (this.IsUrlAnImage(post.url))
                 return await this.sendRedditPostAsImage(discordChannel, post);
 
-            // if (post.is_video)
-            //     return await this.sendRedditPostAsVideo(discordChannel, post)
+            if (post.is_video)
+                return await this.sendRedditPostAsVideo(discordChannel, post);
 
             if (post.selftext !== "")
                 return await this.sendRedditPostAsContentText(
@@ -127,62 +127,17 @@ export class RedditPull {
     async sendRedditPostAsVideo(discordChannel, post) {
         Logger.verbose(`Sending post as video...`);
         try {
-            const highestQuality = await this.getHighestQuality(post.url);
-            const response = await fetch(`${post.url}/DASH_audio.mp4`);
-
-            if (response.status !== 200) {
-                const dashFile = {
-                    attachment: `${post.url}/DASH_${highestQuality}.mp4`,
-                    name: `${post.id}.mp4`,
-                };
-                if (post.over_18 || post.spoiler)
-                    dashFile.name = `SPOILER_${post.id}.mp4`;
-                return await discordChannel.send(post.title, {
-                    files: [dashFile],
-                });
-            }
-
-            const ffmpeg = createFFmpeg();
-            await ffmpeg.load();
-
-            ffmpeg.FS(
-                "writeFile",
-                "video.mp4",
-                await fetchFile(`${post.url}/DASH_${highestQuality}.mp4`)
-            );
-            ffmpeg.FS(
-                "writeFile",
-                "audio.mp4",
-                await fetchFile(`${post.url}/DASH_audio.mp4`)
-            );
-            await ffmpeg.run(
-                "-i",
-                "video.mp4",
-                "-i",
-                "audio.mp4",
-                "-c",
-                "copy",
-                `${post.id}.mp4`
-            );
-
-            let data = ffmpeg.FS("readFile", `${post.id}.mp4`);
-            data = new Uint8Array(data.buffer);
-            await fs.writeFile(`./${post.id}.mp4`, Buffer.from(data));
-
-            ffmpeg.exit();
-
             const file = {
-                attachment: `./${post.id}.mp4`,
-                name: `${post.id}.mp4`,
+                attachment: `${post.url}/DASH_360.mp4`,
+                name:
+                    post.over_18 || post.spoiler
+                        ? `SPOILER_${post.id}.mp4`
+                        : `${post.id}.mp4`,
             };
-            if (post.over_18 || post.spoiler)
-                file.name = `SPOILER_${post.id}.mp4`;
             await discordChannel.send(post.title, { files: [file] });
         } catch (error) {
             Logger.error(error);
             await this.sendRedditPostAsText(discordChannel, post);
-        } finally {
-            await this.deleteVideoFile(`./${post.id}.mp4`);
         }
     }
 
@@ -199,7 +154,7 @@ export class RedditPull {
 
         for (const quality of availableQualities) {
             const response = await fetch(`${url}/DASH_${quality}.mp4`);
-            if (response.status === 200) return quality;
+            if (response.ok) return quality;
         }
 
         throw new Error("Impossible de récupérer la qualité de la vidéo");
