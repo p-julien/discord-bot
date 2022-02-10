@@ -4,7 +4,8 @@ import { promises as fs } from "fs";
 import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
 import { Logger } from "../utils/log.js";
 import chalk from "chalk";
-
+import prettyMilliseconds from "pretty-ms";
+import { MessageEmbed } from "discord.js";
 export class RedditPull {
     constructor(client) {
         this.client = client;
@@ -41,11 +42,14 @@ export class RedditPull {
 
             if (redditDiscordChannel == null) return;
 
-            await redditDiscordChannel.send(
-                `Finished sending posts successfully in ${Number(
-                    timeTaken
-                ).toFixed(2)} ms! See you tomorrow ✨`
-            );
+            const prettyMs = prettyMilliseconds(timeTaken);
+            const embed = new MessageEmbed()
+                .setColor("#E6742B")
+                .setTitle(
+                    `📊 Finished sending posts successfully in ${prettyMs}!`
+                );
+
+            await redditDiscordChannel.send({ embed: embed });
         } catch (error) {
             Logger.error(error);
         }
