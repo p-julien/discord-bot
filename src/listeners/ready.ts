@@ -1,16 +1,8 @@
 import { Client } from "discord.js";
-import { Command } from "../command";
-import { Ping } from "../commands/ping";
+import { commands } from "../commands";
 
-export function ready(client: Client): void {
-    client.on("ready", async () => {
-        if (!client.user || !client.application) {
-            return;
-        }
-
-        await client.application.commands.set(commands);
-        console.log(`${client.user.username} is online`);
-    });
+export async function ready(client: Client) {
+    if (!client.user || !client.application) return;
+    await client.application.commands.set(commands);
+    console.log(`${client.user.username} is online`);
 }
-
-export const commands = new Array<Command>(new Ping());

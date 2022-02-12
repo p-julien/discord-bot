@@ -1,6 +1,6 @@
 import { BaseCommandInteraction, Client, MessageEmbed } from "discord.js";
 import prettyMilliseconds from "pretty-ms";
-import { Command } from "../command";
+import { Command } from "./command.interface";
 
 export class Ping implements Command {
     name = "ping";
@@ -16,7 +16,7 @@ export class Ping implements Command {
     private getEmbed(client: Client) {
         return new MessageEmbed()
             .setColor("#E6742B")
-            .setTitle(`🏓 Latency: ${this.getLatency(client)}ms`);
+            .setTitle(`🏓 Latency: ${this.getLatency(client)}`);
     }
 
     private getLatency(client: Client) {
