@@ -8,11 +8,11 @@ const { DISCORD_API_KEY, DISCORD_CLIENT_ID, DISCORD_GUILD_ID } = process.env;
 
 const pull = new SlashCommandBuilder()
     .setName("pull")
-    .setDescription("Ping the server of the bot");
+    .setDescription("Pull the reddit submissions for the current channel");
 
 const ping = new SlashCommandBuilder()
     .setName("ping")
-    .setDescription("Pull the reddit submissions for the current channel");
+    .setDescription("Ping the server of the bot");
 
 const restart = new SlashCommandBuilder()
     .setName("restart")
