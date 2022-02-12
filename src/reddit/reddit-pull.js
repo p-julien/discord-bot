@@ -1,6 +1,5 @@
 import Snoowrap from "snoowrap";
 import fetch from "node-fetch";
-import * as fs from "fs";
 import { Logger } from "../utils/log.js";
 import chalk from "chalk";
 import prettyMilliseconds from "pretty-ms";
@@ -119,9 +118,11 @@ export class RedditPull {
         if (post.over_18 || post.spoiler || post.selftext.length > 2000)
             return await this.sendRedditPostAsText(discordChannel, post);
 
-        await discordChannel.send(
-            post.title + "\n```md\n" + post.selftext + "\n```"
+        const message = await discordChannel.send(
+            `${post.title}\n${post.url}` + "\n```md\n" + post.selftext + "\n```"
         );
+
+        await message.suppressEmbeds();
     }
 
     async sendRedditPostAsVideo(discordChannel, post) {
@@ -134,18 +135,18 @@ export class RedditPull {
                         ? `SPOILER_${post.id}.mp4`
                         : `${post.id}.mp4`,
             };
-            await discordChannel.send(post.title, { files: [file] });
+
+            const message = await discordChannel.send(
+                `${post.title}\n${post.url}`,
+                {
+                    files: [file],
+                }
+            );
+
+            await message.suppressEmbeds();
         } catch (error) {
             Logger.error(error);
             await this.sendRedditPostAsText(discordChannel, post);
-        }
-    }
-
-    async deleteVideoFile(path) {
-        try {
-            await fs.unlink(path);
-        } catch (error) {
-            Logger.error(error);
         }
     }
 
@@ -168,7 +169,14 @@ export class RedditPull {
         const file = { attachment: post.url };
         if (post.over_18 || post.spoiler)
             file.name = `SPOILER_${post.id}.${this.getExtension(post.url)}`;
-        await discordChannel.send(post.title, { files: [file] });
+        const message = await discordChannel.send(
+            `${post.title}\n${post.url}`,
+            {
+                files: [file],
+            }
+        );
+
+        await message.suppressEmbeds();
     }
 
     async isImageSizeBiggerThan8Mb(urlImage) {
@@ -191,7 +199,13 @@ export class RedditPull {
                         .pop()}`;
                 files.push(file);
             }
-            await discordChannel.send(post.title, { files: files });
+            const message = await discordChannel.send(
+                `${post.title}\n${post.url}`,
+                {
+                    files: files,
+                }
+            );
+            await message.suppressEmbeds();
         } catch (error) {
             await this.sendRedditPostAsText(discordChannel, post);
         }
