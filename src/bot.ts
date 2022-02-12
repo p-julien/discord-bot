@@ -1,14 +1,15 @@
 import { Client, Interaction } from "discord.js";
 import dotenv from "dotenv";
+import { DiscordEvent } from "./discord-event";
 import { interactionCreate } from "./listeners/interaction-create";
 import { ready } from "./listeners/ready";
 
 dotenv.config();
 const client = new Client({ intents: [] });
 
-client.on("ready", async () => await ready(client));
+client.on(DiscordEvent.Ready, async () => await ready(client));
 client.on(
-    "interactionCreate",
+    DiscordEvent.InteractionCreate,
     async (interaction: Interaction) =>
         await interactionCreate(client, interaction)
 );
