@@ -23,20 +23,17 @@ export async function handleSlashCommand(
     );
 
     await interaction.deferReply();
-    if (!slashCommand) {
-        const embed = new MessageEmbed()
-            .setColor("#E6742B")
-            .setTitle(
-                `Sorry I didn't know the command ${interaction.commandName} 😕`
-            );
+    if (!slashCommand)
         return interaction.followUp({
             ephemeral: true,
-            embeds: [embed],
+            embeds: [
+                new MessageEmbed()
+                    .setColor("#E6742B")
+                    .setTitle("Sorry this command doesn't exists 😕"),
+            ],
         });
-    }
 
-    console.log(
-        `Command ${interaction.commandName} is called by ${interaction.user.username}`
-    );
+    const username = interaction.user.username;
+    console.log(`Command ${interaction.commandName} is called by ${username}`);
     slashCommand.run(client, interaction);
 }
