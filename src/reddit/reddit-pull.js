@@ -7,6 +7,7 @@ import { MessageEmbed } from "discord.js";
 
 export class RedditPull {
     constructor(client) {
+        this.URL_REDDIT = "https://www.reddit.com";
         this.client = client;
         this.snoowrap = new Snoowrap({
             userAgent: process.env.REDDIT_USER_AGENT,
@@ -74,7 +75,7 @@ export class RedditPull {
                 embed: {
                     color: 0xe6742b,
                     title: discordChannel.topic,
-                    url: `https://www.reddit.com/r/${discordChannel.topic}`,
+                    url: `${this.URL_REDDIT}/r/${discordChannel.topic}`,
                     description: `Le reddit /r/${discordChannel.topic} ne semble pas disponible`,
                 },
             });
@@ -119,7 +120,10 @@ export class RedditPull {
             return await this.sendRedditPostAsText(discordChannel, post);
 
         const message = await discordChannel.send(
-            `${post.title}\n${post.url}` + "\n```md\n" + post.selftext + "\n```"
+            `${post.title}\n${this.URL_REDDIT + post.permalink}` +
+                "\n```md\n" +
+                post.selftext +
+                "\n```"
         );
 
         await message.suppressEmbeds();
@@ -137,7 +141,7 @@ export class RedditPull {
             };
 
             const message = await discordChannel.send(
-                `${post.title}\n${post.url}`,
+                `${post.title}\n${this.URL_REDDIT + post.permalink}`,
                 {
                     files: [file],
                 }
@@ -169,8 +173,9 @@ export class RedditPull {
         const file = { attachment: post.url };
         if (post.over_18 || post.spoiler)
             file.name = `SPOILER_${post.id}.${this.getExtension(post.url)}`;
+
         const message = await discordChannel.send(
-            `${post.title}\n${post.url}`,
+            `${post.title}\n${this.URL_REDDIT + post.permalink}`,
             {
                 files: [file],
             }
@@ -200,7 +205,7 @@ export class RedditPull {
                 files.push(file);
             }
             const message = await discordChannel.send(
-                `${post.title}\n${post.url}`,
+                `${post.title}\n${this.URL_REDDIT + post.permalink}`,
                 {
                     files: files,
                 }
