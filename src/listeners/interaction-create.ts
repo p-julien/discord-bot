@@ -1,4 +1,9 @@
-import { BaseCommandInteraction, Client, Interaction } from "discord.js";
+import {
+    BaseCommandInteraction,
+    Client,
+    Interaction,
+    MessageEmbed,
+} from "discord.js";
 import { commands } from "../commands";
 
 export async function interactionCreate(
@@ -17,9 +22,21 @@ export async function handleSlashCommand(
         (c) => c.name === interaction.commandName
     );
 
-    if (!slashCommand)
-        return interaction.followUp({ content: "An error has occurred" });
-
     await interaction.deferReply();
+    if (!slashCommand) {
+        const embed = new MessageEmbed()
+            .setColor("#E6742B")
+            .setTitle(
+                `Sorry I didn't know the command ${interaction.commandName} 😕`
+            );
+        return interaction.followUp({
+            ephemeral: true,
+            embeds: [embed],
+        });
+    }
+
+    console.log(
+        `Command ${interaction.commandName} is called by ${interaction.user.username}`
+    );
     slashCommand.run(client, interaction);
 }

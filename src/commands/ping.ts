@@ -7,9 +7,10 @@ export class Ping implements Command {
     description = "Ping the server of the bot";
 
     async run(client: Client, interaction: BaseCommandInteraction) {
+        const embed = this.getEmbed(client);
         await interaction.followUp({
             ephemeral: true,
-            embeds: [this.getEmbed(client)],
+            embeds: [embed],
         });
     }
 
