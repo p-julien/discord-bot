@@ -10,20 +10,23 @@ export async function interactionCreate(
     client: Client,
     interaction: Interaction
 ) {
-    if (!interaction.isCommand()) return;
+    // console.log(interaction);
+    // console.log(interaction.isCommand());
+    // console.log(interaction.isContextMenu());
+    const isCommandExecutable =
+        interaction.isCommand() || interaction.isContextMenu();
+    if (!isCommandExecutable) return;
     await handleSlashCommand(client, interaction);
 }
 
-export async function handleSlashCommand(
+async function handleSlashCommand(
     client: Client,
     interaction: BaseCommandInteraction
 ) {
-    const slashCommand = commands.find(
-        (c) => c.name === interaction.commandName
-    );
+    const command = commands.find((c) => c.name === interaction.commandName);
 
     await interaction.deferReply();
-    if (!slashCommand)
+    if (!command)
         return interaction.followUp({
             ephemeral: true,
             embeds: [
@@ -35,5 +38,5 @@ export async function handleSlashCommand(
 
     const username = interaction.user.username;
     console.log(`Command ${interaction.commandName} is called by ${username}`);
-    slashCommand.run(client, interaction);
+    command.run(client, interaction);
 }

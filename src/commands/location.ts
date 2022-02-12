@@ -1,30 +1,25 @@
 import {
-    ApplicationCommandAutocompleteOption,
-    BaseCommandInteraction,
     Client,
     MessageEmbed,
+    UserApplicationCommandData,
+    UserContextMenuInteraction,
 } from "discord.js";
-import { Command } from "./command.interface";
 import fetch from "node-fetch";
-import { ApplicationCommandOptionTypes } from "discord.js/typings/enums";
+import { ApplicationCommandTypes } from "discord.js/typings/enums";
 
-export class Location implements Command {
+export class Location implements UserApplicationCommandData {
+    type: ApplicationCommandTypes.USER = ApplicationCommandTypes.USER;
     name = "location";
-    description = "Get the localisation of an user";
-    options = new Array<ApplicationCommandAutocompleteOption>({
-        type: ApplicationCommandOptionTypes.STRING,
-        autocomplete: true,
-        name: "user_id",
-        required: true,
-        description: "Id of the user",
-    });
 
-    async run(client: Client, interaction: BaseCommandInteraction) {
-        const parameters = interaction.options.data as any;
-        const userId = parameters.find((p: any) => p.name === "user_id").value;
-        const location = await this.getLocation(userId);
+    async run(client: Client, interaction: UserContextMenuInteraction) {
+        const location = await this.getLocation(interaction.targetId);
+        const user = client.users.cache.find(
+            (user) => user.id === interaction.targetId
+        );
+
+        if (user === undefined) return;
         const embed = await this.getEmbed({
-            userId: userId,
+            username: user.username,
             location: location,
         });
 
@@ -37,7 +32,7 @@ export class Location implements Command {
     private async getEmbed(data: any) {
         return new MessageEmbed()
             .setColor("#E6742B")
-            .setTitle(`🛰️ Location ${data.userId}: ${data.location}`);
+            .setTitle(`🛰️ Last location of ${data.username}: ${data.location}`);
     }
 
     private async getLocation(userId: string) {

@@ -1,8 +1,8 @@
 import { BaseCommandInteraction, Client, MessageEmbed } from "discord.js";
-import { Command } from "./command.interface";
+import { ChatCommand } from "./command.interface";
 import fetch from "node-fetch";
 
-export class Advice implements Command {
+export class Advice implements ChatCommand {
     name = "advice";
     description = "Get a random advice";
 

@@ -1,8 +1,12 @@
-import { BaseCommandInteraction, Client, MessageEmbed } from "discord.js";
+import {
+    BaseCommandInteraction,
+    ChatInputApplicationCommandData,
+    Client,
+    MessageEmbed,
+} from "discord.js";
 import prettyMilliseconds from "pretty-ms";
-import { Command } from "./command.interface";
 
-export class Ping implements Command {
+export class Ping implements ChatInputApplicationCommandData {
     name = "ping";
     description = "Ping the server of the bot";
 
