@@ -6,6 +6,7 @@ import {
 } from "discord.js";
 import fetch from "node-fetch";
 import { ApplicationCommandTypes } from "discord.js/typings/enums";
+import hdate from "human-date";
 
 export class Location implements UserApplicationCommandData {
     type: ApplicationCommandTypes.USER = ApplicationCommandTypes.USER;
@@ -30,15 +31,19 @@ export class Location implements UserApplicationCommandData {
     }
 
     private async getEmbed(data: any) {
+        const location = data.location.geolocalisation;
+        const date = hdate.prettyPrint(data.location.updated_at);
         return new MessageEmbed()
             .setColor("#E6742B")
-            .setTitle(`🛰️ Last location of ${data.username}: ${data.location}`);
+            .setTitle(`🛰️ Location of ${data.username}`)
+            .setDescription(
+                `Geolocalisation: ${location}\nLast update: ${date}`
+            );
     }
 
     private async getLocation(userId: string) {
         const uri = `https://codem.tk/geo/api/discord-user/${userId}`;
         const response = await fetch(uri);
-        const data = (await response.json()) as any;
-        return data.geolocalisation as string;
+        return (await response.json()) as any;
     }
 }

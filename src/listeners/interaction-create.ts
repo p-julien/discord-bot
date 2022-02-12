@@ -10,12 +10,7 @@ export async function interactionCreate(
     client: Client,
     interaction: Interaction
 ) {
-    // console.log(interaction);
-    // console.log(interaction.isCommand());
-    // console.log(interaction.isContextMenu());
-    const isCommandExecutable =
-        interaction.isCommand() || interaction.isContextMenu();
-    if (!isCommandExecutable) return;
+    if (!(interaction.isCommand() || interaction.isContextMenu())) return;
     await handleSlashCommand(client, interaction);
 }
 
