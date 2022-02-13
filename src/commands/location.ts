@@ -1,14 +1,10 @@
-import {
-    Client,
-    MessageEmbed,
-    UserApplicationCommandData,
-    UserContextMenuInteraction,
-} from "discord.js";
+import { Client, MessageEmbed, UserContextMenuInteraction } from "discord.js";
 import fetch from "node-fetch";
 import { ApplicationCommandTypes } from "discord.js/typings/enums";
 import hdate from "human-date";
+import { UserCommand } from "./command.interface";
 
-export class Location implements UserApplicationCommandData {
+export class Location implements UserCommand {
     type: ApplicationCommandTypes.USER = ApplicationCommandTypes.USER;
     name = "location";
 
