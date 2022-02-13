@@ -1,6 +1,6 @@
 import { Client, Interaction } from "discord.js";
 import dotenv from "dotenv";
-import { DiscordEvent } from "./discord-event";
+import { DiscordEvent } from "./enums/discord-event";
 import { interactionCreate } from "./listeners/interaction-create";
 import { ready } from "./listeners/ready";
 import { Logger } from "./loggers/log";
