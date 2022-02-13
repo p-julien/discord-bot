@@ -4,7 +4,7 @@ import {
     MessageEmbed,
     TextChannel,
 } from "discord.js";
-import { Reddit } from "../reddit/reddit";
+import { Reddit } from "../reddit";
 import { ChatCommand } from "./command.interface";
 
 export class Pull implements ChatCommand {

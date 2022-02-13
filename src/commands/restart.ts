@@ -1,5 +1,5 @@
 import { BaseCommandInteraction, Client, MessageEmbed } from "discord.js";
-import { Reddit } from "../reddit/reddit";
+import { Reddit } from "../reddit";
 import { ChatCommand } from "./command.interface";
 
 export class Restart implements ChatCommand {

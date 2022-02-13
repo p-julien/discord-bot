@@ -13,7 +13,7 @@ export class Logger {
         console.log(`${datetime} ${level} ${chalk.blue(message)}`);
     }
 
-    static error(error: Error) {
+    static error(error: any) {
         const datetime = chalk.grey(`[${new Date().toLocaleString()}]`);
         const level = chalk.bgRed.whiteBright.bold(" E ");
 

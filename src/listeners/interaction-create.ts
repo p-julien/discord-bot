@@ -4,8 +4,9 @@ import {
     Interaction,
     MessageEmbed,
 } from "discord.js";
-import { Logger } from "../utils/log";
+import { Logger } from "../loggers/log";
 import { commands } from "../commands";
+import chalk from "chalk";
 
 export async function interactionCreate(
     client: Client,
@@ -19,20 +20,34 @@ async function handleSlashCommand(
     client: Client,
     interaction: BaseCommandInteraction
 ) {
-    const command = commands.find((c) => c.name === interaction.commandName);
+    try {
+        const command = commands.find(
+            (c) => c.name === interaction.commandName
+        );
 
-    await interaction.deferReply();
-    if (!command)
-        return interaction.followUp({
-            ephemeral: true,
-            embeds: [
-                new MessageEmbed()
-                    .setColor("#E6742B")
-                    .setTitle("Sorry this command doesn't exists 😕"),
-            ],
-        });
+        await interaction.deferReply();
+        if (!command)
+            return interaction.followUp({
+                ephemeral: true,
+                embeds: [
+                    new MessageEmbed()
+                        .setColor("#E6742B")
+                        .setTitle("Sorry this command doesn't exists 😕"),
+                ],
+            });
 
-    const username = interaction.user.username;
-    Logger.info(`Command ${interaction.commandName} is called by ${username}`);
-    command.run(client, interaction);
+        const username = interaction.user.username;
+        Logger.info(
+            `${chalk.whiteBright.bold(
+                username
+            )} asked for the command ${chalk.whiteBright.bold(
+                interaction.commandName
+            )}`
+        );
+        command.run(client, interaction);
+    } catch (error) {
+        Logger.error(
+            `An error occured while responding to the command: ${interaction.commandName}`
+        );
+    }
 }
