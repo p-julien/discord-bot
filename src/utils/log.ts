@@ -1,13 +1,13 @@
 import chalk from "chalk";
 
 export class Logger {
-    static info(message: string) {
+    static info(message: any) {
         const datetime = chalk.grey(`[${new Date().toLocaleString()}]`);
         const level = chalk.bgGreen.whiteBright.bold(" I ");
         console.log(`${datetime} ${level} ${chalk.green(message)}`);
     }
 
-    static verbose(message: string) {
+    static verbose(message: any) {
         const datetime = chalk.grey(`[${new Date().toLocaleString()}]`);
         const level = chalk.bgBlue.whiteBright.bold(" D ");
         console.log(`${datetime} ${level} ${chalk.blue(message)}`);

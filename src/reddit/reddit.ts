@@ -18,7 +18,7 @@ export class Reddit {
     async sendSubmissionsToChannels() {
         const startTime = performance.now();
 
-        const channels = this.getDiscordChannelsReddit();
+        const channels = this.getChannelsReddit();
         channels.forEach(
             async (channel) => await this.sendSubmissionsToChannel(channel)
         );
@@ -118,58 +118,6 @@ export class Reddit {
         );
     }
 
-    private async sendSubmissionAsImage(
-        channel: TextChannel,
-        submission: Submission
-    ) {
-        if (await this.isImageSizeBiggerThan8Mb(submission.url))
-            return await this.sendSubmissionAsText(channel, submission);
-
-        const file = {
-            attachment: submission.url,
-            name:
-                submission.over_18 || submission.spoiler
-                    ? `SPOILER_${submission.id}.${this.getExtension(
-                          submission.url
-                      )}`
-                    : `${submission.id}.${this.getExtension(submission.url)}`,
-        };
-
-        const message = await channel.send({
-            content: `${submission.title}\n${
-                this.URL_REDDIT + submission.permalink
-            }`,
-            files: [file],
-        });
-
-        setTimeout(
-            async () => await message.suppressEmbeds(),
-            this.EMBED_TIMEOUT
-        );
-    }
-
-    private async sendStats(timeTaken: number) {
-        const redditChannel = this.getDiscordChannels().find(
-            (channel: TextChannel) => channel.name === "reddit"
-        );
-
-        if (redditChannel == null) return;
-
-        const prettyMs = prettyMilliseconds(timeTaken);
-        const embed = new MessageEmbed()
-            .setColor("#E6742B")
-            .setTitle(`📊 Finished sending posts successfully in ${prettyMs}!`);
-
-        if (redditChannel.type != "GUILD_TEXT") return;
-        await redditChannel.send({ embeds: [embed] });
-    }
-
-    private async isImageSizeBiggerThan8Mb(urlImage: string) {
-        const response = await fetch(urlImage);
-        const imageSize = Number(response.headers.get("content-length"));
-        return imageSize > 8000000;
-    }
-
     private async sendSubmissionAsGallery(
         channel: TextChannel,
         submission: any
@@ -200,27 +148,40 @@ export class Reddit {
         );
     }
 
-    private getDiscordChannelsReddit() {
-        const discordChannels = [];
-        for (const [key, value] of this.discord.channels.cache) {
-            if (value.type != "GUILD_TEXT") continue;
-            if (value.parent == null) continue;
-            if (!value.parent.name.toLowerCase().includes("reddit")) continue;
-            discordChannels.push(value);
-        }
+    private async sendSubmissionAsImage(
+        channel: TextChannel,
+        submission: Submission
+    ) {
+        if (await this.isImageSizeBiggerThan8Mb(submission.url))
+            return await this.sendSubmissionAsText(channel, submission);
 
-        return discordChannels.sort((a, b) => a.rawPosition - b.rawPosition);
+        const file = {
+            attachment: submission.url,
+            name:
+                submission.over_18 || submission.spoiler
+                    ? `SPOILER_${submission.id}.${this.getExtension(
+                          submission.url
+                      )}`
+                    : `${submission.id}.${this.getExtension(submission.url)}`,
+        };
+
+        const message = await channel.send({
+            content: `${submission.title}\n${
+                this.URL_REDDIT + submission.permalink
+            }`,
+            files: [file],
+        });
+
+        setTimeout(
+            async () => await message.suppressEmbeds(),
+            this.EMBED_TIMEOUT
+        );
     }
 
-    private getDiscordChannels() {
-        const discordChannels = [];
-        for (const [key, value] of this.discord.channels.cache) {
-            if (value.type != "GUILD_TEXT") continue;
-            if (value.parent == null) continue;
-            discordChannels.push(value);
-        }
-
-        return discordChannels.sort((a, b) => a.rawPosition - b.rawPosition);
+    private async isImageSizeBiggerThan8Mb(urlImage: string) {
+        const response = await fetch(urlImage);
+        const imageSize = Number(response.headers.get("content-length"));
+        return imageSize > 8000000;
     }
 
     private IsUrlAnImage(url: string) {
@@ -233,5 +194,37 @@ export class Reddit {
 
     private getExtension(url: string) {
         return url.split(".").pop();
+    }
+
+    private getChannelsReddit() {
+        const channelsReddit = this.getChannels();
+        return channelsReddit.filter((channel) =>
+            channel.parent?.name.toLowerCase().includes("reddit")
+        );
+    }
+
+    private getChannels() {
+        const channels = new Array<TextChannel>();
+        this.discord.channels.cache.forEach((channel) => {
+            if (channel.type == "GUILD_TEXT") channels.push(channel);
+        });
+
+        return channels.sort((a, b) => a.rawPosition - b.rawPosition);
+    }
+
+    private async sendStats(timeTaken: number) {
+        const redditChannel = this.getChannels().find(
+            (channel: TextChannel) => channel.name === "reddit"
+        );
+
+        if (redditChannel == null) return;
+
+        const prettyMs = prettyMilliseconds(timeTaken);
+        const embed = new MessageEmbed()
+            .setColor("#E6742B")
+            .setTitle(`📊 Finished sending posts successfully in ${prettyMs}!`);
+
+        if (redditChannel.type != "GUILD_TEXT") return;
+        await redditChannel.send({ embeds: [embed] });
     }
 }

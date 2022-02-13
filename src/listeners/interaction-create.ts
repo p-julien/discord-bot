@@ -4,6 +4,7 @@ import {
     Interaction,
     MessageEmbed,
 } from "discord.js";
+import { Logger } from "../utils/log";
 import { commands } from "../commands";
 
 export async function interactionCreate(
@@ -32,6 +33,6 @@ async function handleSlashCommand(
         });
 
     const username = interaction.user.username;
-    console.log(`Command ${interaction.commandName} is called by ${username}`);
+    Logger.info(`Command ${interaction.commandName} is called by ${username}`);
     command.run(client, interaction);
 }
