@@ -4,7 +4,8 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "start": "ts-node src/bot.ts"
+        "start": "ts-node src/bot.ts",
+        "update-commands": "ts-node src/slash-commands.ts"
     },
     "keywords": [],
     "author": "",
