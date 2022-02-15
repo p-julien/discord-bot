@@ -135,30 +135,9 @@ export class Reddit {
         submission: Submission
     ) {
         Logger.verbose(`Sending post as video...`);
-        try {
-            const file = {
-                attachment: `${submission.url}/DASH_360.mp4`,
-                name:
-                    submission.over_18 || submission.spoiler
-                        ? `SPOILER_${submission.id}.mp4`
-                        : `${submission.id}.mp4`,
-            };
-
-            const message = await channel.send({
-                content: `${submission.title}\n${
-                    this.URL_REDDIT + submission.permalink
-                }`,
-                files: [file],
-            });
-
-            setTimeout(
-                async () => await message.suppressEmbeds(),
-                this.EMBED_TIMEOUT
-            );
-        } catch (error) {
-            Logger.error(error);
-            await this.sendSubmissionAsText(channel, submission);
-        }
+        if (submission.over_18 || submission.spoiler)
+            submission.url = `|| ${this.URL_REDDIT + submission.permalink} ||`;
+        await channel.send(`${submission.title}\n${submission.url}`);
     }
 
     private async sendSubmissionAsGallery(
