@@ -135,8 +135,9 @@ export class Reddit {
         submission: Submission
     ) {
         Logger.verbose(`Sending post as video...`);
+        submission.url = this.URL_REDDIT + submission.permalink;
         if (submission.over_18 || submission.spoiler)
-            submission.url = `|| ${this.URL_REDDIT + submission.permalink} ||`;
+            submission.url = `|| ${submission.url} ||`;
         await channel.send(`${submission.title}\n${submission.url}`);
     }
 
