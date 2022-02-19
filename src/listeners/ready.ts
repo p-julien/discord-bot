@@ -8,15 +8,30 @@ import { schedule } from "node-cron";
 export async function ready(client: Client) {
     if (!client.user || !client.application) return;
 
-    // Todo: Mettre à jour les commandes sur le serveur
-    // const guildCommands = await client.application.commands.fetch();
-    // guildCommands.forEach((c) => c.delete());
-
-    await client.application.commands.set([...chatCommands, ...userCommands]);
-    schedule(
-        "0 20 * * *",
-        async () => await new Reddit(client).sendSubmissionsToChannels()
-    );
+    scheduleRedditSubmissions(client);
+    updateCommands(client);
 
     Logger.info(`Logged in as ${chalk.bold.whiteBright(client.user.tag)}!`);
+}
+
+function scheduleRedditSubmissions(client: Client) {
+    const cronExpression = "0 20 * * *";
+    const reddit = new Reddit(client);
+    schedule(
+        cronExpression,
+        async () => await reddit.sendSubmissionsToChannels()
+    );
+}
+
+/**
+ * https://stackoverflow.com/questions/70167100/discord-js-v13-slash-commands-are-duplicated
+ */
+function updateCommands(discord: Client) {
+    const guildId = process.env.DISCORD_GUILD_ID;
+    if (guildId == null) return;
+    const guild = discord.guilds.cache.get(guildId);
+
+    discord.application?.commands.set([]); // This takes ~1 hour to update
+    guild?.commands.set([]); // This updates immediately
+    guild?.commands.set([...chatCommands, ...userCommands]);
 }
