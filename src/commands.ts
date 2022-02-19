@@ -8,7 +8,6 @@ import {
 } from "./commands/command.interface";
 import { Pull } from "./commands/pull";
 import { Restart } from "./commands/restart";
-import { Stat } from "./commands/stat";
 
 export const chatCommands = new Array<ChatCommand>(
     new Ping(),
@@ -17,6 +16,6 @@ export const chatCommands = new Array<ChatCommand>(
     new Restart()
 );
 
-export const userCommands = new Array<UserCommand>(new Location(), new Stat());
+export const userCommands = new Array<UserCommand>(new Location());
 
 export const commands = new Array<Command>(...chatCommands, ...userCommands);
