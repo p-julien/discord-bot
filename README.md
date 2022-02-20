@@ -1,3 +1,3 @@
 # Discord Bot
 
-This is the discord bot used for my personnal server.
+Bot discord utilisé sur mon serveur personnel.
