@@ -16,4 +16,4 @@ client.on(
         await interactionCreate(client, interaction)
 );
 
-client.login(process.env.DISCORD_API_KEY);
+client.login(process.env.DISCORD_API_KEY).catch((e) => Logger.error(e));
