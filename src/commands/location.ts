@@ -39,7 +39,8 @@ export class Location implements UserCommand {
 
     private async getLocation(userId: string) {
         const uri = `https://codem.tk/geo/api/discord-user/${userId}`;
-        const response = await fetch(uri);
+        const headers = { Authorization: process.env.CODEM_API_KEY as string };
+        const response = await fetch(uri, { headers: headers });
         return (await response.json()) as any;
     }
 }
