@@ -1,5 +1,7 @@
 FROM node:latest
 
+ENV TZ=Europe/Paris
+
 RUN mkdir -p /usr/src/bot
 WORKDIR /usr/src/bot
 
