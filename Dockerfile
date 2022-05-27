@@ -9,4 +9,4 @@ COPY package.json /usr/src/bot
 RUN npm install
 
 COPY . /usr/src/bot
-CMD ["npm", "run", "start"]
+CMD ["npm", "start"]
