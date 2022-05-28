@@ -5,7 +5,7 @@ import {
     MessageEmbed,
 } from "discord.js";
 import { Logger } from "../loggers/log";
-import { commands } from "../commands";
+import { commands } from "../commands/commands";
 import chalk from "chalk";
 
 export async function interactionCreate(

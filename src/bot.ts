@@ -8,12 +8,12 @@ import { Logger } from "./loggers/log";
 dotenv.config();
 const client = new Client({ intents: ["GUILDS"] });
 
-client.on(DiscordEvent.Ready, async () => await ready(client));
+client.on(DiscordEvent.Ready, () => ready(client));
 
 client.on(
-    DiscordEvent.InteractionCreate,
-    async (interaction: Interaction) =>
-        await interactionCreate(client, interaction)
+  DiscordEvent.InteractionCreate,
+  async (interaction: Interaction) =>
+    await interactionCreate(client, interaction)
 );
 
 client.login(process.env.DISCORD_API_KEY).catch((e) => Logger.error(e));
