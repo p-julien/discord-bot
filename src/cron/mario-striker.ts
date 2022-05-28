@@ -14,7 +14,7 @@ const MARIO_STRICKER_URLS_IMAGE = [
 ];
 
 export function scheduleMarioStrickerCooldown(client: Client) {
-  schedule("0 21 * * *", async () => {
+  schedule("0 20 * * *", async () => {
     if (new Date() > MARIO_STRICKER_RELEASE_DATE) return;
 
     const relativeTime = getTimeBeforeMarioStrickerRelease();
@@ -25,7 +25,8 @@ export function scheduleMarioStrickerCooldown(client: Client) {
     const embed = new MessageEmbed()
       .setColor("#E6742B")
       .setImage(urlImage)
-      .setTitle(`⏳ Mario Stricker release in ${relativeTime}`);
+      .setTitle("🎮 Mario Strikers: Battle League Football")
+      .setDescription(`⏳ Release in ${relativeTime}`);
 
     await channel.send({ embeds: [embed] });
   });
