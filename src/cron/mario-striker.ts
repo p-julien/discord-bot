@@ -15,6 +15,8 @@ const MARIO_STRICKER_URLS_IMAGE = [
 
 export function scheduleMarioStrickerCooldown(client: Client) {
   schedule("0 21 * * *", async () => {
+    if (new Date() > MARIO_STRICKER_RELEASE_DATE) return;
+
     const relativeTime = getTimeBeforeMarioStrickerRelease();
     const channel = getTextChannels(client).shift();
     if (channel == null) return;
