@@ -7,7 +7,6 @@ const MARIO_STRICKER_RELEASE_DATE = new Date("2022-06-10");
 const MARIO_STRICKER_URLS_IMAGE = [
   "https://fs-prod-cdn.nintendo-europe.com/media/images/10_share_images/games_15/wii_24/SI_Wii_MarioStrikersChargedFootball_image1600w.jpg",
   "https://fs-prod-cdn.nintendo-europe.com/media/images/10_share_images/games_15/nintendo_switch_4/2x1_NSwitch_MarioStrikersBattleLeagueFootball_image1600w.jpg",
-  "https://fs-prod-cdn.nintendo-europe.com/media/images/10_share_images/games_15/nintendo_switch_4/2x1_NSwitch_MarioStrikersBattleLeagueFootball_image1600w.jpg",
   "https://cdn.sortiraparis.com/images/80/66131/724632-mario-strikers-battle-league-football-bande-annonce-et-date-de-sortie.jpg",
   "https://m.media-amazon.com/images/I/814e0XJboML._AC_SL1500_.jpg",
   "https://www.lacremedugaming.fr/wp-content/uploads/creme-gaming/2022/05/mario-strikers-switch-5.jpg",
@@ -28,7 +27,11 @@ export function scheduleMarioStrickerCooldown(client: Client) {
       .setTitle("🎮 Mario Strikers: Battle League Football")
       .setDescription(`⏳ Release in ${relativeTime}`);
 
-    if (isReleaseDay()) embed.setDescription("🎉 Available now!");
+    if (isReleaseDay())
+      embed
+        .setDescription("🎉 Available now!")
+        .setImage(MARIO_STRICKER_URLS_IMAGE[1]);
+
     await channel.send({ embeds: [embed] });
   });
 }
