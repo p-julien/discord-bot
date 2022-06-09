@@ -28,8 +28,16 @@ export function scheduleMarioStrickerCooldown(client: Client) {
       .setTitle("🎮 Mario Strikers: Battle League Football")
       .setDescription(`⏳ Release in ${relativeTime}`);
 
+    if (isReleaseDay()) embed.setDescription("🎉 Available now!");
     await channel.send({ embeds: [embed] });
   });
+}
+
+function isReleaseDay(): Boolean {
+  return (
+    new Date().toLocaleDateString() ==
+    MARIO_STRICKER_RELEASE_DATE.toLocaleDateString()
+  );
 }
 
 function getRandomUrlImage(): string {
