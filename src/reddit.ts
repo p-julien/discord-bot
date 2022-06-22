@@ -22,7 +22,7 @@ export class Reddit {
     Logger.verbose("Start of sending posts...");
     try {
       const startTime = performance.now();
-      const channels = this.getChannelsReddit();
+      const channels = getTextChannels(this.discord);
 
       for (const channel of channels)
         await this.sendSubmissionsToChannel(channel);
@@ -44,6 +44,8 @@ export class Reddit {
       if (channel.topic == null) return;
 
       const subreddit = this.r.getSubreddit(channel.topic);
+      if (subreddit == null) return;
+
       const submissions = await subreddit.getTop({
         time: "day",
         limit: 3,
@@ -205,12 +207,6 @@ export class Reddit {
 
   private getExtension(url: string) {
     return url.split(".").pop();
-  }
-
-  private getChannelsReddit() {
-    return getTextChannels(this.discord).filter((channel) =>
-      channel.parent?.name.toLowerCase().includes("reddit")
-    );
   }
 
   private async sendStats(timeTaken: number) {
