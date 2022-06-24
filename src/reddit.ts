@@ -42,10 +42,9 @@ export class Reddit {
     );
     try {
       if (channel.topic == null) return;
+      if (channel.topic.trimEnd().includes(" ")) return;
 
       const subreddit = this.r.getSubreddit(channel.topic);
-      if (subreddit == null) return;
-
       const submissions = await subreddit.getTop({
         time: "day",
         limit: 3,
