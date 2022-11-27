@@ -1,25 +1,33 @@
-import { BaseCommandInteraction, Client, MessageEmbed } from "discord.js";
-import { Reddit } from "../reddit";
-import { ChatCommand } from "./command.interface";
+import { ChatInputCommandInteraction, Client, EmbedBuilder } from 'discord.js';
+import { ClientConfiguration } from '../configurations/configuration';
+import { RedditService } from '../services/reddit.service';
+import { ChatCommand } from './command.interface';
 
 export class Restart implements ChatCommand {
-    name = "restart";
-    description = "Restart the reddit submissions";
+  name = 'restart';
+  description = 'Restart the reddit submissions';
 
-    async run(client: Client, interaction: BaseCommandInteraction) {
-        const embed = this.getEmbed();
-        await interaction.followUp({
-            ephemeral: true,
-            embeds: [embed],
-        });
+  constructor(
+    private discord: Client,
+    private configuration: ClientConfiguration
+  ) {}
 
-        const reddit = new Reddit(client);
-        await reddit.sendSubmissionsToChannels();
-    }
+  async run(interaction: ChatInputCommandInteraction) {
+    const embed = this.getEmbed();
+    await interaction.followUp({
+      ephemeral: true,
+      embeds: [embed],
+    });
 
-    private getEmbed() {
-        return new MessageEmbed()
-            .setColor("#E6742B")
-            .setTitle(`ℹ️ Les posts reddit vont être envoyés !`);
-    }
+    new RedditService(
+      this.discord,
+      this.configuration
+    ).sendSubmissionsToChannels();
+  }
+
+  private getEmbed() {
+    return new EmbedBuilder()
+      .setColor(this.configuration.ui.embedColor)
+      .setTitle(`ℹ️ Les posts reddit vont être envoyés !`);
+  }
 }

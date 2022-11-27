@@ -1,35 +1,42 @@
 import {
-    BaseCommandInteraction,
-    Client,
-    MessageEmbed,
-    TextChannel,
-} from "discord.js";
-import { Reddit } from "../reddit";
-import { ChatCommand } from "./command.interface";
+  ChannelType,
+  ChatInputCommandInteraction,
+  Client,
+  EmbedBuilder,
+  TextChannel,
+} from 'discord.js';
+import { ClientConfiguration } from '../configurations/configuration';
+import { RedditService } from '../services/reddit.service';
+import { ChatCommand } from './command.interface';
 
 export class Pull implements ChatCommand {
-    name = "pull";
-    description = "Pull the reddit submissions for the current channel";
+  name = 'pull';
+  description = 'Pull the reddit submissions for the current channel';
 
-    async run(client: Client, interaction: BaseCommandInteraction) {
-        const reddit = new Reddit(client);
-        const channel = await client.channels.fetch(interaction.channelId);
-        if (channel?.type != "GUILD_TEXT") return;
+  constructor(
+    private discord: Client,
+    private configuration: ClientConfiguration
+  ) {}
 
-        const embed = this.getEmbed(channel);
-        await interaction.followUp({
-            ephemeral: true,
-            embeds: [embed],
-        });
+  async run(interaction: ChatInputCommandInteraction) {
+    const reddit = new RedditService(this.discord, this.configuration);
+    const channel = await this.discord.channels.fetch(interaction.channelId);
+    if (channel == null || channel.type != ChannelType.GuildText) return;
 
-        await reddit.sendSubmissionsToChannel(channel);
-    }
+    const embed = this.getEmbed(channel);
+    await interaction.followUp({
+      ephemeral: true,
+      embeds: [embed],
+    });
 
-    private getEmbed(discordChannel: TextChannel) {
-        return new MessageEmbed()
-            .setColor("#E6742B")
-            .setTitle(
-                `ℹ️ Les posts du reddit r/${discordChannel.topic} vont être envoyés !`
-            );
-    }
+    await reddit.sendSubmissionsToChannel(channel);
+  }
+
+  private getEmbed(discordChannel: TextChannel) {
+    return new EmbedBuilder()
+      .setColor(this.configuration.ui.embedColor)
+      .setTitle(
+        `ℹ️ Les posts du reddit r/${discordChannel.topic} vont être envoyés !`
+      );
+  }
 }

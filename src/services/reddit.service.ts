@@ -1,71 +1,59 @@
-import { Client, MessageEmbed, TextChannel } from "discord.js";
-import prettyMilliseconds from "pretty-ms";
-import Snoowrap, { Submission } from "snoowrap";
-import fetch from "node-fetch";
-import { Logger } from "./loggers/log";
-import chalk from "chalk";
-import { getTextChannels } from "./discord";
+import { ChannelType, Client, EmbedBuilder, TextChannel } from 'discord.js';
+import Snoowrap, { Submission } from 'snoowrap';
+import { Logger } from '../logs/logger';
+import prettyMilliseconds from 'pretty-ms';
+import { ClientConfiguration } from '../configurations/configuration';
 
-export class Reddit {
-  private readonly URL_REDDIT = "https://www.reddit.com";
-  private readonly EMBED_TIMEOUT = 1000;
-  private r = new Snoowrap({
-    userAgent: "burgerexpress:v1.0.0 (by /u/href404)",
-    clientId: process.env.REDDIT_CLIENT_ID,
-    clientSecret: process.env.REDDIT_CLIENT_SECRET,
-    refreshToken: process.env.REDDIT_REFRESH_TOKEN,
-  });
+export class RedditService {
+  private readonly EMBED_TIMEOUT = 2000;
 
-  constructor(private discord: Client) {}
+  constructor(
+    private discord: Client,
+    private configuration: ClientConfiguration
+  ) {}
 
-  async sendSubmissionsToChannels() {
-    Logger.verbose("Start of sending posts...");
-    try {
-      const startTime = performance.now();
-      const channels = getTextChannels(this.discord);
-
-      for (const channel of channels)
-        await this.sendSubmissionsToChannel(channel);
-
-      const timeTaken = performance.now() - startTime;
-      await this.sendStats(timeTaken);
-    } catch (error) {
-      Logger.error(error);
-    }
+  sendSubmissionsToChannels() {
+    getTextChannels(this.discord).forEach(this.sendSubmissionsToChannel);
   }
 
   async sendSubmissionsToChannel(channel: TextChannel) {
-    Logger.info(
-      `Start of sending posts on channel ${chalk.whiteBright.bold(
-        channel.name
-      )} [topic: ${chalk.whiteBright.bold(channel.topic)}]`
-    );
     try {
       if (channel.topic == null) return;
-      if (channel.topic.trimEnd().includes(" ")) return;
+      if (channel.topic.trimEnd().includes(' ')) return;
 
-      const subreddit = this.r.getSubreddit(channel.topic);
-      const submissions = await subreddit.getTop({
-        time: "day",
-        limit: 3,
+      const reddit = new Snoowrap({
+        userAgent: this.configuration.reddit.userAgent,
+        clientId: this.configuration.reddit.clientId,
+        clientSecret: this.configuration.reddit.clientSecret,
+        refreshToken: this.configuration.reddit.refreshToken,
       });
 
-      for (const submission of submissions)
-        await this.sendSubmissionToChannel(channel, submission);
+      const subreddit = reddit.getSubreddit(channel.topic);
+      const submissions = await subreddit.getTop({
+        time: this.configuration.reddit.post.time,
+        limit: this.configuration.reddit.post.limit,
+      });
+
+      submissions.forEach((submission) =>
+        this.sendSubmissionToChannel(channel, submission)
+      );
     } catch (error) {
       Logger.error(error);
-      await channel.send({
-        embeds: [
-          new MessageEmbed()
-            .setColor("#E6742B")
-            .setTitle(channel.topic!)
-            .setDescription(
-              `Le reddit /r/${channel.topic} ne semble pas disponible`
-            )
-            .setURL(`${this.URL_REDDIT}/r/${channel.topic}`),
-        ],
-      });
+      this.sendEmbedError(channel);
     }
+  }
+
+  async sendEmbedError(channel: TextChannel) {
+    const description = `Le reddit /r/${channel.topic} ne semble pas disponible`;
+    await channel.send({
+      embeds: [
+        new EmbedBuilder()
+          .setColor(this.configuration.ui.embedColor)
+          .setTitle(channel.topic)
+          .setDescription(description)
+          .setURL(`${this.configuration.reddit.serviceUrl}/r/${channel.topic}`),
+      ],
+    });
   }
 
   private async sendSubmissionToChannel(channel: TextChannel, submission: any) {
@@ -82,7 +70,7 @@ export class Reddit {
       if (submission.is_video)
         return await this.sendSubmissionAsVideo(channel, submission);
 
-      if (submission.selftext !== "")
+      if (submission.selftext !== '')
         return await this.sendSubmissionAsContentText(channel, submission);
 
       await this.sendSubmissionAsText(channel, submission);
@@ -95,7 +83,6 @@ export class Reddit {
     channel: TextChannel,
     submission: Submission
   ) {
-    Logger.verbose(`Sending post as default...`);
     if (submission.over_18 || submission.spoiler)
       submission.url = `|| ${submission.url} ||`;
     await channel.send(`${submission.title}\n${submission.url}`);
@@ -105,7 +92,6 @@ export class Reddit {
     channel: TextChannel,
     submission: Submission
   ) {
-    Logger.verbose(`Sending post as content text...`);
     if (
       submission.over_18 ||
       submission.spoiler ||
@@ -114,10 +100,12 @@ export class Reddit {
       return await this.sendSubmissionAsText(channel, submission);
 
     const message = await channel.send(
-      `${submission.title}\n${this.URL_REDDIT + submission.permalink}` +
-        "\n```md\n" +
+      `${submission.title}\n${
+        this.configuration.reddit.serviceUrl + submission.permalink
+      }` +
+        '\n```md\n' +
         submission.selftext +
-        "\n```"
+        '\n```'
     );
 
     setTimeout(async () => await message.suppressEmbeds(), this.EMBED_TIMEOUT);
@@ -127,15 +115,14 @@ export class Reddit {
     channel: TextChannel,
     submission: Submission
   ) {
-    Logger.verbose(`Sending post as video...`);
-    submission.url = this.URL_REDDIT + submission.permalink;
+    submission.url =
+      this.configuration.reddit.serviceUrl + submission.permalink;
     if (submission.over_18 || submission.spoiler)
       submission.url = `|| ${submission.url} ||`;
     await channel.send(`${submission.title}\n${submission.url}`);
   }
 
   private async sendSubmissionAsGallery(channel: TextChannel, submission: any) {
-    Logger.verbose(`Sending post as gallery...`);
     try {
       const files = [];
       for (const item of submission.gallery_data.items) {
@@ -145,14 +132,14 @@ export class Reddit {
           attachment: attachment,
           name:
             submission.over_18 || submission.spoiler
-              ? `SPOILER_${item.media_id}.${media.m.split("/").pop()}`
-              : `${item.media_id}.${media.m.split("/").pop()}`,
+              ? `SPOILER_${item.media_id}.${media.m.split('/').pop()}`
+              : `${item.media_id}.${media.m.split('/').pop()}`,
         };
         files.push(file);
       }
       const message = await channel.send({
         content: `${submission.title}\n${
-          this.URL_REDDIT + submission.permalink
+          this.configuration.reddit.serviceUrl + submission.permalink
         }`,
         files: files,
       });
@@ -170,7 +157,6 @@ export class Reddit {
     channel: TextChannel,
     submission: Submission
   ) {
-    Logger.verbose(`Sending post as image...`);
     if (await this.isImageSizeBiggerThan8Mb(submission.url))
       return await this.sendSubmissionAsText(channel, submission);
 
@@ -183,7 +169,9 @@ export class Reddit {
     };
 
     const message = await channel.send({
-      content: `${submission.title}\n${this.URL_REDDIT + submission.permalink}`,
+      content: `${submission.title}\n${
+        this.configuration.reddit.serviceUrl + submission.permalink
+      }`,
       files: [file],
     });
 
@@ -192,7 +180,7 @@ export class Reddit {
 
   private async isImageSizeBiggerThan8Mb(urlImage: string) {
     const response = await fetch(urlImage);
-    const imageSize = Number(response.headers.get("content-length"));
+    const imageSize = Number(response.headers.get('content-length'));
     return imageSize > 8000000;
   }
 
@@ -200,30 +188,41 @@ export class Reddit {
     const extension = this.getExtension(url);
     if (!extension) return false;
 
-    const extensions = ["jpg", "jpeg", "png", "gif"];
+    const extensions = ['jpg', 'jpeg', 'png', 'gif'];
     return extensions.includes(extension);
   }
 
   private getExtension(url: string) {
-    return url.split(".").pop();
-  }
-
-  private async sendStats(timeTaken: number) {
-    Logger.info("Sending statistics to discord channel");
-    try {
-      const redditChannel = getTextChannels(this.discord).find(
-        (channel) => channel.name === "reddit"
-      );
-
-      if (redditChannel == null) return;
-      const prettyMs = prettyMilliseconds(timeTaken);
-      const embed = new MessageEmbed()
-        .setColor("#E6742B")
-        .setTitle(`📊 Finished sending posts successfully in ${prettyMs}!`);
-
-      await redditChannel.send({ embeds: [embed] });
-    } catch (error) {
-      Logger.error(error);
-    }
+    return url.split('.').pop();
   }
 }
+
+const sendStats = async (
+  discord: Client,
+  configuration: ClientConfiguration,
+  timeTaken: number
+) => {
+  Logger.info('Sending statistics to discord channel');
+  try {
+    const redditChannel = getTextChannels(discord).find(
+      (channel) => channel.name === 'reddit'
+    );
+
+    if (redditChannel == null) return;
+    const prettyMs = prettyMilliseconds(timeTaken);
+    const embed = new EmbedBuilder()
+      .setColor(configuration.ui.embedColor)
+      .setTitle(`📊 Finished sending posts successfully in ${prettyMs}!`);
+
+    await redditChannel.send({ embeds: [embed] });
+  } catch (error) {
+    Logger.error(error);
+  }
+};
+
+const getTextChannels = (discord: Client) => {
+  return discord.channels.cache
+    .filter((channel) => channel.type == ChannelType.GuildText)
+    .map((x) => x as TextChannel)
+    .sort((a, b) => a.rawPosition - b.rawPosition);
+};

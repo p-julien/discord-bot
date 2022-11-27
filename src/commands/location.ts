@@ -1,46 +1,53 @@
-import { Client, MessageEmbed, UserContextMenuInteraction } from "discord.js";
-import fetch from "node-fetch";
-import { ApplicationCommandTypes } from "discord.js/typings/enums";
-import hdate from "human-date";
-import { UserCommand } from "./command.interface";
+import {
+  ApplicationCommandType,
+  Client,
+  EmbedBuilder,
+  UserContextMenuCommandInteraction,
+} from 'discord.js';
+import hdate from 'human-date';
+import { UserCommand } from './command.interface';
+import { ClientConfiguration } from '../configurations/configuration';
 
 export class Location implements UserCommand {
-    type: ApplicationCommandTypes.USER = ApplicationCommandTypes.USER;
-    name = "location";
+  type: ApplicationCommandType.User = ApplicationCommandType.User;
+  name = 'location';
 
-    async run(client: Client, interaction: UserContextMenuInteraction) {
-        const location = await this.getLocation(interaction.targetId);
-        const user = client.users.cache.find(
-            (user) => user.id === interaction.targetId
-        );
+  constructor(
+    private discord: Client,
+    private configuration: ClientConfiguration
+  ) {}
 
-        if (user === undefined) return;
-        const embed = await this.getEmbed({
-            username: user.username,
-            location: location,
-        });
+  async run(interaction: UserContextMenuCommandInteraction) {
+    const location = await this.getLocation(interaction.targetId);
+    const user = this.discord.users.cache.find(
+      (user) => user.id === interaction.targetId
+    );
 
-        await interaction.followUp({
-            ephemeral: true,
-            embeds: [embed],
-        });
-    }
+    if (user === undefined) return;
+    const embed = await this.getEmbed({
+      username: user.username,
+      location: location,
+    });
 
-    private async getEmbed(data: any) {
-        const location = data.location.geolocalisation;
-        const date = hdate.prettyPrint(data.location.updated_at);
-        return new MessageEmbed()
-            .setColor("#E6742B")
-            .setTitle(`🛰️ Location of ${data.username}`)
-            .setDescription(
-                `Geolocalisation: ${location}\nLast update: ${date}`
-            );
-    }
+    await interaction.followUp({
+      ephemeral: true,
+      embeds: [embed],
+    });
+  }
 
-    private async getLocation(userId: string) {
-        const uri = `https://codem.tk/geo/api/discord-user/${userId}`;
-        const headers = { Authorization: process.env.CODEM_API_KEY as string };
-        const response = await fetch(uri, { headers: headers });
-        return (await response.json()) as any;
-    }
+  private async getEmbed(data: any) {
+    const location = data.location.geolocalisation;
+    const date = hdate.prettyPrint(data.location.updated_at);
+    return new EmbedBuilder()
+      .setColor(this.configuration.ui.embedColor)
+      .setTitle(`🛰️ Location of ${data.username}`)
+      .setDescription(`Geolocalisation: ${location}\nLast update: ${date}`);
+  }
+
+  private async getLocation(userId: string) {
+    const uri = `${this.configuration.geolocation.serviceUrl}/discord-user/${userId}`;
+    const headers = { Authorization: this.configuration.geolocation.apiKey };
+    const response = await fetch(uri, { headers: headers });
+    return (await response.json()) as any;
+  }
 }

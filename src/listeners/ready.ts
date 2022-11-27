@@ -1,13 +1,13 @@
-import { Client } from "discord.js";
-import { Logger } from "../loggers/log";
-import chalk from "chalk";
-import { cronTasks } from "../cron/tasks";
-import { updateCommands } from "../commands/update";
+import chalk from 'chalk';
+import { Client } from 'discord.js';
+import { ClientConfiguration } from '../configurations/configuration';
+import { getCronTasks } from '../crons/tasks';
+import { Logger } from '../logs/logger';
 
-export function ready(client: Client) {
+export const ready = (client: Client, configuration: ClientConfiguration) => {
   if (!client.user || !client.application) return;
   Logger.info(`Logged in as ${chalk.bold.whiteBright(client.user.tag)}!`);
 
-  updateCommands(client);
-  cronTasks.forEach((cronTask) => cronTask(client));
-}
+  const cronTasks = getCronTasks(client, configuration);
+  cronTasks.forEach((cronTask) => cronTask.execute());
+};

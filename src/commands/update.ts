@@ -1,5 +1,4 @@
-import { Client } from "discord.js";
-import { chatCommands, userCommands } from "./commands";
+import { Client } from 'discord.js';
 
 /**
  * https://stackoverflow.com/questions/70167100/discord-js-v13-slash-commands-are-duplicated
@@ -11,5 +10,5 @@ export function updateCommands(discord: Client) {
 
   discord.application?.commands.set([]); // This takes ~1 hour to update
   guild?.commands.set([]); // This updates immediately
-  guild?.commands.set([...chatCommands, ...userCommands]);
+  // guild?.commands.set([...chatCommands, ...userCommands]);
 }

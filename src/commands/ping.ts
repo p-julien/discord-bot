@@ -1,26 +1,32 @@
-import { BaseCommandInteraction, Client, MessageEmbed } from "discord.js";
-import prettyMilliseconds from "pretty-ms";
-import { ChatCommand } from "./command.interface";
+import { ChatInputCommandInteraction, Client, EmbedBuilder } from 'discord.js';
+import prettyMilliseconds from 'pretty-ms';
+import { ClientConfiguration } from 'src/configurations/configuration';
+import { ChatCommand } from './command.interface';
 
 export class Ping implements ChatCommand {
-    name = "ping";
-    description = "Ping the server of the bot";
+  name = 'ping';
+  description = 'Ping the server of the bot';
 
-    async run(client: Client, interaction: BaseCommandInteraction) {
-        const embed = this.getEmbed(client);
-        await interaction.followUp({
-            ephemeral: true,
-            embeds: [embed],
-        });
-    }
+  constructor(
+    private discord: Client,
+    private configuration: ClientConfiguration
+  ) {}
 
-    private getEmbed(client: Client) {
-        return new MessageEmbed()
-            .setColor("#E6742B")
-            .setTitle(`🏓 Latency: ${this.getLatency(client)}`);
-    }
+  async run(interaction: ChatInputCommandInteraction) {
+    const embed = this.getEmbed(this.discord);
+    await interaction.followUp({
+      ephemeral: true,
+      embeds: [embed],
+    });
+  }
 
-    private getLatency(client: Client) {
-        return prettyMilliseconds(client.ws.ping);
-    }
+  private getEmbed(client: Client) {
+    return new EmbedBuilder()
+      .setColor(this.configuration.ui.embedColor)
+      .setTitle(`🏓 Latency: ${this.getLatency(client)}`);
+  }
+
+  private getLatency(client: Client) {
+    return prettyMilliseconds(client.ws.ping);
+  }
 }

@@ -1,21 +1,19 @@
-import { Advice } from "./advice";
-import { Ping } from "./ping";
-import { Location } from "./location";
-import {
-  ChatCommand as ChatCommand,
-  Command,
-  UserCommand,
-} from "./command.interface";
-import { Pull } from "./pull";
-import { Restart } from "./restart";
+import { Advice } from './advice';
+import { Ping } from './ping';
+import { Location } from './location';
+import { Pull } from './pull';
+import { Restart } from './restart';
+import { ClientConfiguration } from '../configurations/configuration';
+import { Command } from './command.interface';
+import { Client } from 'discord.js';
 
-export const chatCommands = new Array<ChatCommand>(
-  new Ping(),
-  new Advice(),
-  new Pull(),
-  new Restart()
-);
-
-export const userCommands = new Array<UserCommand>(new Location());
-
-export const commands = new Array<Command>(...chatCommands, ...userCommands);
+export const getCommands = (
+  discord: Client,
+  configuration: ClientConfiguration
+): Command[] => [
+  new Ping(discord, configuration),
+  new Advice(configuration),
+  new Pull(discord, configuration),
+  new Restart(discord, configuration),
+  new Location(discord, configuration),
+];
