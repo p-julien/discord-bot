@@ -1,22 +1,11 @@
 {
   "root": true,
   "ignorePatterns": ["**/*"],
-  "plugins": ["simple-import-sort", "import"],
+  "plugins": ["@nrwl/nx"],
   "overrides": [
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
       "rules": {
-        "simple-import-sort/imports": "error",
-        "simple-import-sort/exports": "error",
-        "import/first": "error",
-        "import/newline-after-import": "error",
-        "import/no-duplicates": "error",
-        "prettier/prettier": [
-          "error",
-          {
-            "endOfLine": "auto"
-          }
-        ],
         "@nrwl/nx/enforce-module-boundaries": [
           "error",
           {
@@ -34,12 +23,12 @@
     },
     {
       "files": ["*.ts", "*.tsx"],
-      "extends": ["plugin:prettier/recommended"],
+      "extends": ["plugin:@nrwl/nx/typescript"],
       "rules": {}
     },
     {
       "files": ["*.js", "*.jsx"],
-      "extends": ["plugin:prettier/recommended"],
+      "extends": ["plugin:@nrwl/nx/javascript"],
       "rules": {}
     },
     {
