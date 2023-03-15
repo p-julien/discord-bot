@@ -1,0 +1,21 @@
+name: Branch
+
+on:
+  push:
+    branches: [*]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Lint
+        run: npx nx run-many --target=lint
+
+      - name: Build
+        run: npx nx run-many --target=lint
