@@ -5,27 +5,23 @@ import { RedditConfiguration } from '../../models/configuration';
 export async function sendSubmissionAsContentText(
   channel: TextChannel,
   submission: Submission,
-  redditConfiguration: RedditConfiguration
+  configuration: RedditConfiguration
 ): Promise<void> {
-  if (
-    submission.over_18 ||
-    submission.spoiler ||
-    submission.selftext.length > 2000
-  ) {
-    throw new Error('Submission is over 2000 characters');
+  console.debug(
+    `📝 [${channel.name}] - [${submission.title}] - [${submission.url}]`
+  );
+
+  if (submission.over_18 || submission.spoiler) {
+    throw new Error('Submission is NSFW or Spoiler');
   }
 
-  const message = await channel.send(
-    `${submission.title}\n${
-      redditConfiguration.serviceUrl + submission.permalink
-    }` +
-      '\n```md\n' +
-      submission.selftext +
-      '\n```'
-  );
+  if (submission.selftext.length > 2000) {
+    throw new Error('Submission has more than 2000 characters');
+  }
 
-  setTimeout(
-    async () => await message.suppressEmbeds(),
-    redditConfiguration.embedTimeout
-  );
+  const title = `**${submission.title}**\n${configuration.serviceUrl}${submission.permalink}`;
+  const selftext = '```md\n' + submission.selftext + '\n```';
+  const message = await channel.send(`${title}\n${selftext}`);
+
+  setTimeout(() => message.suppressEmbeds(), configuration.embedTimeout);
 }

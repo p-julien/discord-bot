@@ -12,7 +12,7 @@ export function ready(
     return;
   }
 
-  console.log(`Logged in as ${client.user.tag}!`);
+  console.log(`🌍 Logged in as ${client.user.tag}!`);
 
   const crons = getCrons(client, configuration);
   crons.forEach((cronTask) => cronTask.execute());

@@ -47,13 +47,13 @@ async function handleSlashCommand(
       });
 
     console.info(
-      `${interaction.user.username} asked for the command ${interaction.commandName}`
+      `🆗 ${interaction.user.username} asked for the command ${interaction.commandName}`
     );
 
     command.run(interaction);
   } catch (error) {
     console.error(
-      `An error occured while responding to the command: ${interaction.commandName}`
+      `❌ An error occured while responding to the command: ${interaction.commandName}`
     );
   }
 }

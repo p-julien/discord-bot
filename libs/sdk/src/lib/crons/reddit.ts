@@ -12,6 +12,7 @@ export class ScheduleRedditSubmissions implements CronTask {
 
   execute(): void {
     const reddit = new RedditService(this.client, this.configuration);
-    schedule(this.configuration.reddit.cron, reddit.sendSubmissionsToChannels);
+    const { cron } = this.configuration.reddit;
+    schedule(cron, () => reddit.sendSubmissionsToChannels());
   }
 }

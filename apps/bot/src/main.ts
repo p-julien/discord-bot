@@ -21,4 +21,6 @@ discordBot.on(
   async (interaction) => await interactionCreate(configuration, interaction)
 );
 
-discordBot.login(configuration.discord.token).catch(console.error);
+discordBot
+  .login(configuration.discord.token)
+  .catch((err) => console.error('❌', err));

@@ -6,33 +6,33 @@ import { RedditConfiguration } from '../../models/configuration';
 export async function sendSubmissionAsImage(
   channel: TextChannel,
   submission: Submission,
-  redditConfiguration: RedditConfiguration
+  configuration: RedditConfiguration
 ): Promise<void> {
+  console.debug(
+    `🖼️  [${channel.name}] - [${submission.title}] - [${submission.url}]`
+  );
+
   if (await isImageSizeBiggerThan8Mb(submission.url)) {
     throw new Error('Image size is bigger than 8Mb');
   }
 
   const extension = submission.url.split('.').pop();
-  const name =
-    submission.over_18 || submission.spoiler
-      ? `SPOILER_${submission.id}.${extension}`
-      : `${submission.id}.${extension}`;
+  const spoiler = submission.over_18 || submission.spoiler;
 
-  const content = `${submission.title}\n${
-    redditConfiguration.serviceUrl + submission.permalink
-  }`;
+  const name = spoiler
+    ? `SPOILER_${submission.id}.${extension}`
+    : `${submission.id}.${extension}`;
 
-  const files = [{ attachment: submission.url, name }];
-  const message = await channel.send({ content, files });
+  const message = await channel.send({
+    content: `**${submission.title}**\n${configuration.serviceUrl}${submission.permalink}`,
+    files: [{ attachment: submission.url, name }],
+  });
 
-  setTimeout(
-    async () => await message.suppressEmbeds(),
-    redditConfiguration.embedTimeout
-  );
+  setTimeout(() => message.suppressEmbeds(), configuration.embedTimeout);
 }
 
-async function isImageSizeBiggerThan8Mb(urlImage: string): Promise<boolean> {
-  const response = await axios.get(urlImage);
+async function isImageSizeBiggerThan8Mb(url: string): Promise<boolean> {
+  const response = await axios.get(url);
   const imageSize = +response.headers['Content-Length'];
   return imageSize > 8000000;
 }

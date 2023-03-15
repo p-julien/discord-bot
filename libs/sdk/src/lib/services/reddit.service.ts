@@ -1,9 +1,9 @@
 import { Client, EmbedBuilder, TextChannel } from 'discord.js';
+import { Submission } from 'snoowrap';
 import Snoowrap = require('snoowrap');
 import { getDiscordTextChannels } from '../helpers/discord-channels';
 import { isUrlAnImage } from '../helpers/url-image';
 import { ClientConfiguration } from '../models/configuration';
-import { Submission } from '../models/submission';
 import { sendSubmissionAsContentText } from './submissions/content-text';
 import { sendSubmissionAsGallery } from './submissions/gallery';
 import { sendSubmissionAsImage } from './submissions/image';
@@ -38,11 +38,11 @@ export class RedditService {
       const options = this.configuration.reddit.post;
       const submissions = await subreddit.getTop(options);
 
-      submissions.forEach((submission: Submission) =>
-        this.sendSubmissionToChannel(channel, submission)
-      );
-    } catch (error) {
-      console.error(error);
+      for (const submission of submissions) {
+        await this.sendSubmissionToChannel(channel, submission);
+      }
+    } catch (err) {
+      console.error('❌', err);
       this.sendEmbedError(channel);
     }
   }
@@ -51,26 +51,28 @@ export class RedditService {
     channel: TextChannel,
     submission: Submission
   ): Promise<void> {
-    console.debug(`Start of sending post: ${submission.title}`);
-
     try {
-      submission.title = `**${submission.title}**`;
       const { reddit } = this.configuration;
 
-      if (submission.is_gallery)
+      if (submission.url.includes('gallery')) {
         return await sendSubmissionAsGallery(channel, submission, reddit);
+      }
 
-      if (isUrlAnImage(submission.url))
+      if (isUrlAnImage(submission.url)) {
         return await sendSubmissionAsImage(channel, submission, reddit);
+      }
 
-      if (submission.is_video)
-        return await sendSubmissionAsVideo(channel, submission);
+      if (submission.is_video) {
+        return await sendSubmissionAsVideo(channel, submission, reddit);
+      }
 
-      if (submission.selftext !== '')
+      if (submission.selftext !== '') {
         return await sendSubmissionAsContentText(channel, submission, reddit);
+      }
 
       await sendSubmissionAsText(channel, submission);
-    } catch (error) {
+    } catch (err) {
+      console.error('❌', err);
       await sendSubmissionAsText(channel, submission);
     }
   }

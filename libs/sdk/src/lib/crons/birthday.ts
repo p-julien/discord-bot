@@ -12,7 +12,7 @@ export class BirthdayCron implements CronTask {
 
   execute(): void {
     const { cron } = this.configuration.birthday;
-    schedule(cron, this.sendBirthdayMessage);
+    schedule(cron, () => this.sendBirthdayMessage());
   }
 
   async sendBirthdayMessage(): Promise<void> {

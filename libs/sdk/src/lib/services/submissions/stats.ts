@@ -8,11 +8,9 @@ export async function sendStats(
   configuration: ClientConfiguration,
   timeTaken: number
 ) {
-  console.info('Sending statistics to discord channel');
+  console.info('📊 Sending statistics to discord channel');
   try {
     const { statsChannelId } = configuration.discord;
-    console.debug(statsChannelId);
-
     const channels = getDiscordTextChannels(discord);
     const redditChannel = channels.find((x) => x.id === statsChannelId);
 
@@ -27,7 +25,7 @@ export async function sendStats(
       .setTitle(`📊 Finished sending posts successfully in ${prettyMs}!`);
 
     await redditChannel.send({ embeds: [embed] });
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error('❌', err);
   }
 }
