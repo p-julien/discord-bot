@@ -65,7 +65,7 @@
       "dependsOn": ["build"],
       "executor": "nx:run-commands",
       "options": {
-        "commands": ["docker build -f apps/bot/Dockerfile . -t bot"]
+        "commands": ["docker build -f apps/bot/Dockerfile . -t discord-bot-app"]
       }
     }
   },
