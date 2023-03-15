@@ -11,25 +11,32 @@ export async function sendSubmissionAsGallery(
     `🖼️🖼️🖼️  [${channel.name}] - [${submission.title}] - [${submission.url}]`
   );
 
-  // get the media metadata
-  // const mediaMetadata = await submission.media;
+  const message = await channel.send({
+    content: `**${submission.title}**\n${configuration.serviceUrl}${submission.permalink}`,
+    files: getFiles(submission),
+  });
 
-  // const files = [];
-  // for (const item of submission.gallery_data.items) {
-  //   const media = submission.media_metadata[item.media_id];
-  //   const attachment = media.s.u;
-  //   const name =
-  //     submission.over_18 || submission.spoiler
-  //       ? `SPOILER_${item.media_id}.${media.m.split('/').pop()}`
-  //       : `${item.media_id}.${media.m.split('/').pop()}`;
+  setTimeout(() => message.suppressEmbeds(), configuration.embedTimeout);
+}
 
-  //   files.push({ attachment, name });
-  // }
+function getFiles(submission: Submission) {
+  const files = [];
 
-  // const content = `${submission.title}\n${
-  //   configuration.serviceUrl + submission.permalink
-  // }`;
-  // const message = await channel.send({ content, files });
+  for (const item of submission['gallery_data'].items) {
+    if (files.length >= 10) {
+      break;
+    }
 
-  // setTimeout(message.suppressEmbeds, configuration.embedTimeout);
+    const media = submission['media_metadata'][item.media_id];
+    const attachment = media.s.u;
+
+    const name =
+      submission.over_18 || submission.spoiler
+        ? `SPOILER_${item.media_id}.${media.m.split('/').pop()}`
+        : `${item.media_id}.${media.m.split('/').pop()}`;
+
+    files.push({ attachment, name });
+  }
+
+  return files;
 }
