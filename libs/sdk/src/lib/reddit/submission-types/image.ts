@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { SubmissionData, SubmissionResult } from '../../models/submission';
+import { SubmissionData, SubmissionResult } from '../models/submission';
 
 export async function sendSubmissionAsImage({
   channel,

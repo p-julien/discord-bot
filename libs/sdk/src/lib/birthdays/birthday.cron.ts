@@ -1,22 +1,19 @@
 import axios from 'axios';
 import { ChannelType, Client, EmbedBuilder, TextChannel } from 'discord.js';
 import { schedule } from 'node-cron';
-import { SdkConfiguration } from '../models/configurations/sdk-configuration';
-import { CronTask } from '../models/cron-task';
+import { configuration } from '../shared/configurations/sdk-configuration';
+import { CronTask } from '../shared/models/cron-task';
 
 export class BirthdayCron implements CronTask {
-  constructor(
-    private client: Client,
-    private configuration: SdkConfiguration
-  ) {}
+  constructor(private client: Client) {}
 
   execute(): void {
-    const { cron } = this.configuration.birthday;
+    const { cron } = configuration.birthday;
     schedule(cron, () => this.sendBirthdayMessage());
   }
 
   async sendBirthdayMessage(): Promise<void> {
-    const birthdays = await getBirthdays(this.configuration);
+    const birthdays = await getBirthdays();
 
     if (!birthdays || birthdays.length === 0) {
       return;
@@ -25,7 +22,7 @@ export class BirthdayCron implements CronTask {
     const channel = this.client.channels.cache
       .filter((x) => x.type === ChannelType.GuildText)
       .map((x) => x as TextChannel)
-      .find((c) => c.id === this.configuration.birthday.channelId);
+      .find((c) => c.id === configuration.birthday.channelId);
 
     if (!channel) {
       return;
@@ -35,16 +32,14 @@ export class BirthdayCron implements CronTask {
     const title = `🎉 Aujourd'hui c'est l'anniversaire de ${peoplesBirthdays} !`;
 
     const embed = new EmbedBuilder()
-      .setColor(this.configuration.ui.embedColor)
+      .setColor(configuration.ui.embedColor)
       .setTitle(title);
 
     await channel.send({ content: '@everyone', embeds: [embed] });
   }
 }
 
-async function getBirthdays(
-  configuration: SdkConfiguration
-): Promise<string[]> {
+async function getBirthdays(): Promise<string[]> {
   const uri = `${configuration.birthday.serviceUrl}/birthdays`;
   const headers = { Authorization: configuration.birthday.apiKey };
   const response = await axios.get(uri, { headers });

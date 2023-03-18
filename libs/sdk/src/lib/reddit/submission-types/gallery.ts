@@ -1,5 +1,5 @@
 import { Submission } from 'snoowrap';
-import { SubmissionData, SubmissionResult } from '../../models/submission';
+import { SubmissionData, SubmissionResult } from '../models/submission';
 
 export async function sendSubmissionAsGallery({
   channel,

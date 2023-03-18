@@ -1,6 +1,6 @@
 import { TextChannel } from 'discord.js';
 import { Submission } from 'snoowrap';
-import { SdkConfiguration } from './configurations/sdk-configuration';
+import { SdkConfiguration } from '../../shared/configurations/sdk-configuration';
 
 export type SubmissionType =
   | 'Image'

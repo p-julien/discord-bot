@@ -1,7 +1,7 @@
 import { Client, EmbedBuilder } from 'discord.js';
 import prettyMilliseconds from 'pretty-ms';
-import { getDiscordTextChannels } from '../../helpers/discord-channels';
-import { SdkConfiguration } from '../../models/configurations/sdk-configuration';
+import { getDiscordTextChannels } from '../helpers/discord-channels';
+import { SdkConfiguration } from '../../shared/configurations/sdk-configuration';
 
 export async function sendStats(
   discord: Client,

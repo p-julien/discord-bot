@@ -2,25 +2,26 @@ import { Client, EmbedBuilder, TextChannel } from 'discord.js';
 import { Submission } from 'snoowrap';
 import Snoowrap = require('snoowrap');
 import { getDiscordTextChannels } from '../helpers/discord-channels';
-import { isUrlAnImage } from '../helpers/url-image';
-import { SdkConfiguration } from '../models/configurations/sdk-configuration';
+import {
+  configuration,
+  SdkConfiguration,
+} from '../../shared/configurations/sdk-configuration';
+
+import { sendSubmissionAsContentText } from '../submission-types/content-text';
+import { sendSubmissionAsGallery } from '../submission-types/gallery';
+import { sendSubmissionAsImage } from '../submission-types/image';
+import { sendStats } from '../submission-types/stats';
+import { sendSubmissionAsText } from '../submission-types/text';
+import { sendSubmissionAsVideo } from '../submission-types/video';
+import { isUrlImage } from '../helpers/url-image';
 import {
   SubmissionData,
   SubmissionResult,
   SubmissionType,
 } from '../models/submission';
-import { sendSubmissionAsContentText } from './submissions/content-text';
-import { sendSubmissionAsGallery } from './submissions/gallery';
-import { sendSubmissionAsImage } from './submissions/image';
-import { sendStats } from './submissions/stats';
-import { sendSubmissionAsText } from './submissions/text';
-import { sendSubmissionAsVideo } from './submissions/video';
 
 export class RedditService {
-  constructor(
-    private discord: Client,
-    private configuration: SdkConfiguration
-  ) {}
+  constructor(private discord: Client) {}
 
   sendSubmissionsToChannels(): void {
     const startTime = performance.now();
@@ -29,7 +30,7 @@ export class RedditService {
     channels.forEach((channel) => this.sendSubmissionsToChannel(channel));
 
     const timeTaken = performance.now() - startTime;
-    sendStats(this.discord, this.configuration, timeTaken);
+    sendStats(this.discord, configuration, timeTaken);
   }
 
   async sendSubmissionsToChannel(channel: TextChannel): Promise<void> {
@@ -38,9 +39,9 @@ export class RedditService {
         return;
       }
 
-      const reddit = new Snoowrap(this.configuration.reddit);
+      const reddit = new Snoowrap(configuration.reddit);
       const subreddit = reddit.getSubreddit(channel.topic);
-      const options = this.configuration.reddit.post;
+      const options = configuration.reddit.post;
       const submissions = await subreddit.getTop(options);
 
       for (const submission of submissions) {
@@ -56,7 +57,7 @@ export class RedditService {
     channel: TextChannel,
     submission: Submission
   ): Promise<void> {
-    const data = { channel, submission, configuration: this.configuration };
+    const data = { channel, submission, configuration };
 
     try {
       const submissionType = this.getSubmissionType(submission);
@@ -88,7 +89,7 @@ export class RedditService {
 
   getSubmissionType(submission: Submission): SubmissionType {
     if (submission.url.includes('gallery')) return 'Gallery';
-    if (isUrlAnImage(submission.url)) return 'Image';
+    if (isUrlImage(submission.url)) return 'Image';
     if (submission.is_video) return 'Video';
     if (submission.selftext !== '') return 'Selftext';
     return 'Unknown';
@@ -96,10 +97,10 @@ export class RedditService {
 
   private async sendEmbedError(channel: TextChannel): Promise<void> {
     const embed = new EmbedBuilder()
-      .setColor(this.configuration.ui.embedColor)
+      .setColor(configuration.ui.embedColor)
       .setTitle(channel.topic)
       .setDescription(`Le reddit /r/${channel.topic} ne semble pas disponible`)
-      .setURL(`${this.configuration.reddit.serviceUrl}/r/${channel.topic}`);
+      .setURL(`${configuration.reddit.serviceUrl}/r/${channel.topic}`);
 
     await channel.send({ embeds: [embed] });
   }

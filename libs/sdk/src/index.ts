@@ -1,3 +1,1 @@
-export * from './lib/configurations/configuration';
-export * from './lib/listeners/interaction';
-export * from './lib/listeners/ready';
+export * from './lib/discord-bot-client';
