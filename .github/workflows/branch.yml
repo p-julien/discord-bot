@@ -2,9 +2,8 @@ name: Branch
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    branches:
+      - '*'
 
 jobs:
   build:
@@ -16,8 +15,11 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Lint
+      - name: Lint Projects
         run: npx nx run-many --target=lint
 
-      - name: Build
+      - name: Build Projects
         run: npx nx run-many --target=lint
+
+      - name: Build Docker Image
+        run: docker build --file apps/bot/Dockerfile .
