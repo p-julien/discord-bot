@@ -1,13 +1,13 @@
 import axios from 'axios';
 import { ChannelType, Client, EmbedBuilder, TextChannel } from 'discord.js';
 import { schedule } from 'node-cron';
-import { ClientConfiguration } from '../models/configuration';
+import { SdkConfiguration } from '../models/configurations/sdk-configuration';
 import { CronTask } from '../models/cron-task';
 
 export class BirthdayCron implements CronTask {
   constructor(
     private client: Client,
-    private configuration: ClientConfiguration
+    private configuration: SdkConfiguration
   ) {}
 
   execute(): void {
@@ -43,7 +43,7 @@ export class BirthdayCron implements CronTask {
 }
 
 async function getBirthdays(
-  configuration: ClientConfiguration
+  configuration: SdkConfiguration
 ): Promise<string[]> {
   const uri = `${configuration.birthday.serviceUrl}/birthdays`;
   const headers = { Authorization: configuration.birthday.apiKey };

@@ -7,7 +7,7 @@ import {
 import { UserCommand } from '../models/command';
 import axios from 'axios';
 import hdate = require('human-date');
-import { ClientConfiguration } from '../models/configuration';
+import { SdkConfiguration } from '../models/configurations/sdk-configuration';
 import { LocationType } from '../models/location';
 
 export class Location implements UserCommand {
@@ -16,7 +16,7 @@ export class Location implements UserCommand {
 
   constructor(
     private discord: Client,
-    private configuration: ClientConfiguration
+    private configuration: SdkConfiguration
   ) {}
 
   async run(interaction: UserContextMenuCommandInteraction): Promise<void> {
@@ -43,7 +43,7 @@ export class Location implements UserCommand {
 }
 
 async function getLocation(
-  configuration: ClientConfiguration,
+  configuration: SdkConfiguration,
   userId: string
 ): Promise<LocationType> {
   const uri = `${configuration.geolocation.serviceUrl}/api/discord-user/${userId}`;

@@ -1,22 +1,23 @@
-import { TextChannel } from 'discord.js';
 import { Submission } from 'snoowrap';
-import { RedditConfiguration } from '../../models/configuration';
+import { SubmissionData, SubmissionResult } from '../../models/submission';
 
-export async function sendSubmissionAsGallery(
-  channel: TextChannel,
-  submission: Submission,
-  configuration: RedditConfiguration
-): Promise<void> {
+export async function sendSubmissionAsGallery({
+  channel,
+  configuration,
+  submission,
+}: SubmissionData): Promise<SubmissionResult> {
   console.debug(
     `🖼️🖼️🖼️  [${channel.name}] - [${submission.title}] - [${submission.url}]`
   );
 
   const message = await channel.send({
-    content: `**${submission.title}**\n${configuration.serviceUrl}${submission.permalink}`,
+    content: `**${submission.title}**\n${configuration.reddit.serviceUrl}${submission.permalink}`,
     files: getFiles(submission),
   });
 
-  setTimeout(() => message.suppressEmbeds(), configuration.embedTimeout);
+  setTimeout(() => message.suppressEmbeds(), configuration.reddit.embedTimeout);
+
+  return SubmissionResult.Success;
 }
 
 function getFiles(submission: Submission) {

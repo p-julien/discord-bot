@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, Client, EmbedBuilder } from 'discord.js';
 import prettyMilliseconds from 'pretty-ms';
 import { ChatCommand } from '../models/command';
-import { ClientConfiguration } from '../models/configuration';
+import { SdkConfiguration } from '../models/configurations/sdk-configuration';
 
 export class Ping implements ChatCommand {
   name = 'ping';
@@ -9,7 +9,7 @@ export class Ping implements ChatCommand {
 
   constructor(
     private discord: Client,
-    private configuration: ClientConfiguration
+    private configuration: SdkConfiguration
   ) {}
 
   async run(interaction: ChatInputCommandInteraction): Promise<void> {

@@ -1,10 +1,9 @@
-import { TextChannel } from 'discord.js';
-import { Submission } from 'snoowrap';
+import { SubmissionData, SubmissionResult } from '../../models/submission';
 
-export async function sendSubmissionAsText(
-  channel: TextChannel,
-  submission: Submission
-): Promise<void> {
+export async function sendSubmissionAsText({
+  channel,
+  submission,
+}: SubmissionData): Promise<SubmissionResult> {
   console.debug(
     `💬 [${channel.name}] - [${submission.title}] - [${submission.url}]`
   );
@@ -14,4 +13,6 @@ export async function sendSubmissionAsText(
   }
 
   await channel.send(`**${submission.title}**\n${submission.url}`);
+
+  return SubmissionResult.Success;
 }

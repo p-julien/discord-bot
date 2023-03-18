@@ -1,7 +1,7 @@
 import { Timespan } from 'snoowrap/dist/objects/Subreddit';
-import { ClientConfiguration } from '../models/configuration';
+import { SdkConfiguration } from '../models/configurations/sdk-configuration';
 
-export function getConfiguration(): ClientConfiguration {
+export function getConfiguration(): SdkConfiguration {
   return {
     adviceServiceUrl: process.env.ADVICE_SERVICE_URL ?? '',
     ui: {

@@ -1,11 +1,11 @@
 import { Client, EmbedBuilder } from 'discord.js';
 import prettyMilliseconds from 'pretty-ms';
 import { getDiscordTextChannels } from '../../helpers/discord-channels';
-import { ClientConfiguration } from '../../models/configuration';
+import { SdkConfiguration } from '../../models/configurations/sdk-configuration';
 
 export async function sendStats(
   discord: Client,
-  configuration: ClientConfiguration,
+  configuration: SdkConfiguration,
   timeTaken: number
 ) {
   console.info('📊 Sending statistics to discord channel');

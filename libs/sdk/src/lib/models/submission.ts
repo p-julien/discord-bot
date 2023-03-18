@@ -1,11 +1,21 @@
-import { Submission as RedditSubmission } from 'snoowrap';
+import { TextChannel } from 'discord.js';
+import { Submission } from 'snoowrap';
+import { SdkConfiguration } from './configurations/sdk-configuration';
 
-type GalleryData = {
-  items: any[];
+export type SubmissionType =
+  | 'Image'
+  | 'Video'
+  | 'Gallery'
+  | 'Selftext'
+  | 'Unknown';
+
+export type SubmissionData = {
+  channel: TextChannel;
+  submission: Submission;
+  configuration: SdkConfiguration;
 };
 
-export type Submission = RedditSubmission & {
-  is_gallery: boolean;
-  media_metadata: any[];
-  gallery_data: GalleryData;
-};
+export enum SubmissionResult {
+  Success,
+  Error,
+}

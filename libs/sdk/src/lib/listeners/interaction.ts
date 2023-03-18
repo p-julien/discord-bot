@@ -11,11 +11,11 @@ import { Ping } from '../commands/ping';
 import { Pull } from '../commands/pull';
 import { Restart } from '../commands/restart';
 import { Location } from '../commands/location';
-import { ClientConfiguration } from '../models/configuration';
+import { SdkConfiguration } from '../models/configurations/sdk-configuration';
 import { Command } from '../models/command';
 
 export async function interactionCreate(
-  configuration: ClientConfiguration,
+  configuration: SdkConfiguration,
   interaction: Interaction
 ): Promise<void> {
   if (
@@ -27,7 +27,7 @@ export async function interactionCreate(
 }
 
 async function handleSlashCommand(
-  configuration: ClientConfiguration,
+  configuration: SdkConfiguration,
   interaction: ChatInputCommandInteraction | UserContextMenuCommandInteraction
 ): Promise<Message<boolean>> {
   try {
@@ -60,7 +60,7 @@ async function handleSlashCommand(
 
 export function getCommands(
   discord: Client,
-  configuration: ClientConfiguration
+  configuration: SdkConfiguration
 ): Command[] {
   return [
     new Ping(discord, configuration),

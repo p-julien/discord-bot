@@ -6,7 +6,7 @@ import {
 } from 'discord.js';
 import { RedditService } from '../services/reddit.service';
 import { ChatCommand } from '../models/command';
-import { ClientConfiguration } from '../models/configuration';
+import { SdkConfiguration } from '../models/configurations/sdk-configuration';
 
 export class Pull implements ChatCommand {
   name = 'pull';
@@ -14,7 +14,7 @@ export class Pull implements ChatCommand {
 
   constructor(
     private discord: Client,
-    private configuration: ClientConfiguration
+    private configuration: SdkConfiguration
   ) {}
 
   async run(interaction: ChatInputCommandInteraction): Promise<void> {
