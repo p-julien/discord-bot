@@ -22,4 +22,4 @@ jobs:
         run: npx nx run-many --target=lint
 
       - name: Build Docker Image
-        run: docker build --file apps/bot/Dockerfile .
+        run: npx nx run bot:docker-build
