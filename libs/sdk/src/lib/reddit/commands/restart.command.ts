@@ -14,7 +14,7 @@ export class Restart implements ChatCommand {
       .setColor(configuration.ui.embedColor)
       .setTitle(`ℹ️ Les posts reddit vont être envoyés !`);
 
-    await interaction.followUp({ ephemeral: true, embeds: [embed] });
+    await interaction.reply({ embeds: [embed] });
 
     const redditService = new RedditService(this.discord);
 

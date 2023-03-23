@@ -14,7 +14,7 @@ export class Advice implements ChatCommand {
       .setColor(configuration.ui.embedColor)
       .setTitle(`🔮 ${advice}`);
 
-    await interaction.followUp({ ephemeral: true, embeds: [embed] });
+    await interaction.reply({ embeds: [embed] });
   }
 }
 

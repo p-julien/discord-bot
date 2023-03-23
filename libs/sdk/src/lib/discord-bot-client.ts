@@ -17,6 +17,7 @@ import {
   configuration,
 } from './shared/configurations/sdk-configuration';
 import { Command } from './shared/models/command';
+import { handleButtonInteraction } from './reddit/helpers/button-interaction';
 
 export class DiscordBotClient {
   private readonly _discordClient: Client;
@@ -48,6 +49,10 @@ export class DiscordBotClient {
 
   public withInteractionCreate(): DiscordBotClient {
     this._discordClient.on(Events.InteractionCreate, async (interaction) => {
+      if (interaction.isButton()) {
+        await handleButtonInteraction(this._discordClient, interaction);
+      }
+
       if (
         interaction.isChatInputCommand() ||
         interaction.isUserContextMenuCommand()
@@ -62,21 +67,17 @@ export class DiscordBotClient {
           ];
 
           const command = commands.find(
-            (c) => c.name === interaction.commandName
+            ({ name }) => name === interaction.commandName
           );
 
-          await interaction.deferReply();
-
           if (!command) {
-            interaction.followUp({
-              ephemeral: true,
-              embeds: [
-                new EmbedBuilder()
-                  .setColor(configuration.ui.embedColor)
-                  .setTitle("Sorry this command doesn't exists 😕"),
-              ],
-            });
-            return;
+            const embed = new EmbedBuilder()
+              .setColor(configuration.ui.embedColor)
+              .setTitle("Désolé cette commande n'existe pas 😕");
+
+            return interaction
+              .reply({ ephemeral: true, embeds: [embed] })
+              .then();
           }
 
           console.info(

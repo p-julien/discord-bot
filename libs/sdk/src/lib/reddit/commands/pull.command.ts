@@ -29,7 +29,7 @@ export class Pull implements ChatCommand {
       .setColor(configuration.ui.embedColor)
       .setTitle(title);
 
-    await interaction.followUp({ ephemeral: true, embeds: [embed] });
+    await interaction.reply({ ephemeral: true, embeds: [embed] });
 
     await reddit.sendSubmissionsToChannel(channel);
   }

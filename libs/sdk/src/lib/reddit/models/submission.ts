@@ -1,6 +1,5 @@
 import { TextChannel } from 'discord.js';
 import { Submission } from 'snoowrap';
-import { SdkConfiguration } from '../../shared/configurations/sdk-configuration';
 
 export type SubmissionType =
   | 'Image'
@@ -12,10 +11,4 @@ export type SubmissionType =
 export type SubmissionData = {
   channel: TextChannel;
   submission: Submission;
-  configuration: SdkConfiguration;
 };
-
-export enum SubmissionResult {
-  Success,
-  Error,
-}

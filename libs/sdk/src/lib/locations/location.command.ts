@@ -35,7 +35,7 @@ export class Location implements UserCommand {
       .setTitle(`🛰️ Location of ${user.username}`)
       .setDescription(desc);
 
-    await interaction.followUp({ ephemeral: true, embeds: [embed] });
+    await interaction.reply({ ephemeral: true, embeds: [embed] });
   }
 }
 

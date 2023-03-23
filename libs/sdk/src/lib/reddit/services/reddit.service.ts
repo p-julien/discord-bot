@@ -1,11 +1,16 @@
-import { Client, EmbedBuilder, TextChannel } from 'discord.js';
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  Client,
+  EmbedBuilder,
+  Message,
+  TextChannel,
+} from 'discord.js';
 import { Submission } from 'snoowrap';
 import Snoowrap = require('snoowrap');
 import { getDiscordTextChannels } from '../helpers/discord-channels';
-import {
-  configuration,
-  SdkConfiguration,
-} from '../../shared/configurations/sdk-configuration';
+import { configuration } from '../../shared/configurations/sdk-configuration';
 
 import { sendSubmissionAsContentText } from '../submission-types/content-text';
 import { sendSubmissionAsGallery } from '../submission-types/gallery';
@@ -14,14 +19,25 @@ import { sendStats } from '../submission-types/stats';
 import { sendSubmissionAsText } from '../submission-types/text';
 import { sendSubmissionAsVideo } from '../submission-types/video';
 import { isUrlImage } from '../helpers/url-image';
-import {
-  SubmissionData,
-  SubmissionResult,
-  SubmissionType,
-} from '../models/submission';
+import { SubmissionData, SubmissionType } from '../models/submission';
 
 export class RedditService {
-  constructor(private discord: Client) {}
+  private readonly _submissionTypeMap: Record<
+    SubmissionType,
+    (data: SubmissionData) => Promise<Message>
+  > = {
+    Image: sendSubmissionAsImage,
+    Video: sendSubmissionAsVideo,
+    Gallery: sendSubmissionAsGallery,
+    Selftext: sendSubmissionAsContentText,
+    Unknown: sendSubmissionAsText,
+  };
+
+  readonly instance: Snoowrap;
+
+  constructor(private discord: Client) {
+    this.instance = new Snoowrap(configuration.reddit);
+  }
 
   sendSubmissionsToChannels(): void {
     const startTime = performance.now();
@@ -39,8 +55,7 @@ export class RedditService {
         return;
       }
 
-      const reddit = new Snoowrap(configuration.reddit);
-      const subreddit = reddit.getSubreddit(channel.topic);
+      const subreddit = this.instance.getSubreddit(channel.topic);
       const options = configuration.reddit.post;
       const submissions = await subreddit.getTop(options);
 
@@ -58,33 +73,35 @@ export class RedditService {
     submission: Submission
   ): Promise<void> {
     const data = { channel, submission, configuration };
+    const submissionType = this.getSubmissionType(submission);
+    const message = await this.sendMessageSafely(submissionType, data);
 
-    try {
-      const submissionType = this.getSubmissionType(submission);
-      const submissionActionMap = this.getSubmissionActionMap();
-      const submissionAction = submissionActionMap[submissionType];
-      const submissionResult = await submissionAction(data);
+    const button = new ButtonBuilder()
+      .setCustomId('source')
+      .setLabel('Source')
+      .setStyle(ButtonStyle.Primary);
 
-      if (submissionResult === SubmissionResult.Error) {
-        await sendSubmissionAsText(data);
-      }
-    } catch (err) {
-      console.error('❌', err);
-      await sendSubmissionAsText(data);
+    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(button);
+
+    message.edit({ components: [row] });
+
+    if (submissionType !== 'Video') {
+      message.suppressEmbeds();
     }
   }
 
-  private getSubmissionActionMap(): Record<
-    SubmissionType,
-    (data: SubmissionData) => Promise<SubmissionResult>
-  > {
-    return {
-      Image: sendSubmissionAsImage,
-      Video: sendSubmissionAsVideo,
-      Gallery: sendSubmissionAsGallery,
-      Selftext: sendSubmissionAsContentText,
-      Unknown: sendSubmissionAsText,
-    };
+  private async sendMessageSafely(
+    submissionType: SubmissionType,
+    data: SubmissionData
+  ): Promise<Message> {
+    const sendSubmission = this._submissionTypeMap[submissionType];
+
+    try {
+      return await sendSubmission(data);
+    } catch (err) {
+      console.error('❌', err);
+      return await sendSubmissionAsText(data);
+    }
   }
 
   getSubmissionType(submission: Submission): SubmissionType {

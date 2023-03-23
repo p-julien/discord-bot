@@ -1,9 +1,10 @@
-import { SubmissionData, SubmissionResult } from '../models/submission';
+import { Message } from 'discord.js';
+import { SubmissionData } from '../models/submission';
 
 export async function sendSubmissionAsText({
   channel,
   submission,
-}: SubmissionData): Promise<SubmissionResult> {
+}: SubmissionData): Promise<Message> {
   console.debug(
     `💬 [${channel.name}] - [${submission.title}] - [${submission.url}]`
   );
@@ -12,7 +13,5 @@ export async function sendSubmissionAsText({
     submission.url = `|| ${submission.url} ||`;
   }
 
-  await channel.send(`**${submission.title}**\n${submission.url}`);
-
-  return SubmissionResult.Success;
+  return await channel.send(`**${submission.title}**`);
 }

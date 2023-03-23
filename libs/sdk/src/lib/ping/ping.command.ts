@@ -16,6 +16,6 @@ export class Ping implements ChatCommand {
       .setColor(configuration.ui.embedColor)
       .setTitle(`🏓 Latency: ${latency}`);
 
-    await interaction.followUp({ ephemeral: true, embeds: [embed] });
+    await interaction.reply({ ephemeral: true, embeds: [embed] });
   }
 }
