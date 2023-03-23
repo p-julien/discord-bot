@@ -5,12 +5,7 @@ import {
   Events,
   EmbedBuilder,
 } from 'discord.js';
-import { Advice } from './advices/advice.command';
 import { BirthdayCron } from './birthdays/birthday.cron';
-import { Ping } from './ping/ping.command';
-import { Location } from './locations/location.command';
-import { Pull } from './reddit/commands/pull.command';
-import { Restart } from './reddit/commands/restart.command';
 import { ScheduleRedditSubmissions } from './reddit/crons/reddit';
 import {
   assertConfiguration,
@@ -18,6 +13,7 @@ import {
 } from './shared/configurations/sdk-configuration';
 import { Command } from './shared/models/command';
 import { handleButtonInteraction } from './reddit/helpers/button-interaction';
+import { getCommands, updateCommands } from './shared/helpers/update-commands';
 
 export class DiscordBotClient {
   private readonly _discordClient: Client;
@@ -27,12 +23,14 @@ export class DiscordBotClient {
   }
 
   public withReady(): DiscordBotClient {
-    this._discordClient.on(WebSocketShardEvents.Ready, (discordBot) => {
+    this._discordClient.on(WebSocketShardEvents.Ready, async (discordBot) => {
       if (!discordBot.user || !discordBot.application) {
         return;
       }
 
       console.log(`🌍 Logged in as ${discordBot.user.tag}!`);
+
+      await updateCommands(discordBot);
 
       const crons = [
         new ScheduleRedditSubmissions(discordBot),
@@ -58,13 +56,7 @@ export class DiscordBotClient {
         interaction.isUserContextMenuCommand()
       ) {
         try {
-          const commands: Command[] = [
-            new Ping(interaction.client),
-            new Advice(),
-            new Pull(interaction.client),
-            new Restart(interaction.client),
-            new Location(interaction.client),
-          ];
+          const commands: Command[] = getCommands(this._discordClient);
 
           const command = commands.find(
             ({ name }) => name === interaction.commandName
