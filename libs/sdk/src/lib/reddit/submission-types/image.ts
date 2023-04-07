@@ -5,13 +5,14 @@ import { SubmissionData } from '../models/submission';
 export async function sendSubmissionAsImage({
   channel,
   submission,
+  configuration,
 }: SubmissionData): Promise<Message> {
   console.debug(
     `🖼️  [${channel.name}] - [${submission.title}] - [${submission.url}]`
   );
 
   if (await isImageSizeBiggerThan8Mb(submission.url)) {
-    return await channel.send(`**${submission.title}**\n${submission.url}`);
+    throw new Error('⚠️ Submission has more than 8MB');
   }
 
   const extension = submission.url.split('.').pop();
@@ -21,8 +22,10 @@ export async function sendSubmissionAsImage({
     ? `SPOILER_${submission.id}.${extension}`
     : `${submission.id}.${extension}`;
 
+  const url = `${configuration.reddit.serviceUrl}${submission.permalink}`;
+
   return await channel.send({
-    content: `**${submission.title}**`,
+    content: `**${submission.title}**\n${url}`,
     files: [{ attachment: submission.url, name }],
   });
 }

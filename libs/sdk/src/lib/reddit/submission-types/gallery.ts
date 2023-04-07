@@ -5,13 +5,16 @@ import { SubmissionData } from '../models/submission';
 export async function sendSubmissionAsGallery({
   channel,
   submission,
+  configuration,
 }: SubmissionData): Promise<Message> {
   console.debug(
     `🖼️🖼️🖼️  [${channel.name}] - [${submission.title}] - [${submission.url}]`
   );
 
+  const url = `${configuration.reddit.serviceUrl}${submission.permalink}`;
+
   return await channel.send({
-    content: `**${submission.title}**`,
+    content: `**${submission.title}**\n${url}`,
     files: getFiles(submission),
   });
 }

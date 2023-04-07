@@ -1,12 +1,4 @@
-import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  Client,
-  EmbedBuilder,
-  Message,
-  TextChannel,
-} from 'discord.js';
+import { Client, EmbedBuilder, Message, TextChannel } from 'discord.js';
 import { Submission } from 'snoowrap';
 import Snoowrap = require('snoowrap');
 import { getDiscordTextChannels } from '../helpers/discord-channels';
@@ -22,6 +14,8 @@ import { isUrlImage } from '../helpers/url-image';
 import { SubmissionData, SubmissionType } from '../models/submission';
 
 export class RedditService {
+  private readonly _instance = new Snoowrap(configuration.reddit);
+
   private readonly _submissionTypeMap: Record<
     SubmissionType,
     (data: SubmissionData) => Promise<Message>
@@ -33,11 +27,13 @@ export class RedditService {
     Unknown: sendSubmissionAsText,
   };
 
-  readonly instance: Snoowrap;
+  private readonly _submissionTypesEmbed: SubmissionType[] = [
+    'Image',
+    'Gallery',
+    'Selftext',
+  ];
 
-  constructor(private discord: Client) {
-    this.instance = new Snoowrap(configuration.reddit);
-  }
+  constructor(private discord: Client) {}
 
   sendSubmissionsToChannels(): void {
     const startTime = performance.now();
@@ -55,7 +51,7 @@ export class RedditService {
         return;
       }
 
-      const subreddit = this.instance.getSubreddit(channel.topic);
+      const subreddit = this._instance.getSubreddit(channel.topic);
       const options = configuration.reddit.post;
       const submissions = await subreddit.getTop(options);
 
@@ -76,17 +72,8 @@ export class RedditService {
     const submissionType = this.getSubmissionType(submission);
     const message = await this.sendMessageSafely(submissionType, data);
 
-    const button = new ButtonBuilder()
-      .setCustomId('source')
-      .setLabel('Source')
-      .setStyle(ButtonStyle.Primary);
-
-    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(button);
-
-    message.edit({ components: [row] });
-
-    if (submissionType !== 'Video') {
-      message.suppressEmbeds();
+    if (this._submissionTypesEmbed.includes(submissionType)) {
+      await message.suppressEmbeds(true);
     }
   }
 
@@ -104,7 +91,7 @@ export class RedditService {
     }
   }
 
-  getSubmissionType(submission: Submission): SubmissionType {
+  private getSubmissionType(submission: Submission): SubmissionType {
     if (submission.url.includes('gallery')) return 'Gallery';
     if (isUrlImage(submission.url)) return 'Image';
     if (submission.is_video) return 'Video';

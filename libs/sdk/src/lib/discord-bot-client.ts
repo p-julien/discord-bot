@@ -12,7 +12,6 @@ import {
   configuration,
 } from './shared/configurations/sdk-configuration';
 import { Command } from './shared/models/command';
-import { handleButtonInteraction } from './reddit/helpers/button-interaction';
 import { getCommands, updateCommands } from './shared/helpers/update-commands';
 
 export class DiscordBotClient {
@@ -47,10 +46,6 @@ export class DiscordBotClient {
 
   public withInteractionCreate(): DiscordBotClient {
     this._discordClient.on(Events.InteractionCreate, async (interaction) => {
-      if (interaction.isButton()) {
-        await handleButtonInteraction(this._discordClient, interaction);
-      }
-
       if (
         interaction.isChatInputCommand() ||
         interaction.isUserContextMenuCommand()

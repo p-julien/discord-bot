@@ -4,12 +4,17 @@ import { SubmissionData } from '../models/submission';
 export async function sendSubmissionAsVideo({
   channel,
   submission,
+  configuration,
 }: SubmissionData): Promise<Message> {
   console.debug(
     `🎬  [${channel.name}] - [${submission.title}] - [${submission.url}]`
   );
 
-  return await channel.send(
-    `**${submission.title}**\n${submission.media.reddit_video.fallback_url}`
-  );
+  submission.url = `${configuration.reddit.serviceUrl}${submission.permalink}`;
+
+  if (submission.over_18 || submission.spoiler) {
+    submission.url = `|| ${submission.url} ||`;
+  }
+
+  return await channel.send(`**${submission.title}**\n${submission.url}`);
 }

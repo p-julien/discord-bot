@@ -4,6 +4,7 @@ import { SubmissionData } from '../models/submission';
 export async function sendSubmissionAsContentText({
   channel,
   submission,
+  configuration,
 }: SubmissionData): Promise<Message> {
   console.debug(
     `📝 [${channel.name}] - [${submission.title}] - [${submission.url}]`
@@ -17,7 +18,9 @@ export async function sendSubmissionAsContentText({
     throw new Error('⚠️ Submission has more than 2000 characters');
   }
 
-  const title = `**${submission.title}**`;
+  const url = `${configuration.reddit.serviceUrl}${submission.permalink}`;
+  const title = `**${submission.title}**\n${url}`;
   const selftext = '```md\n' + submission.selftext + '\n```';
+
   return await channel.send(`${title}\n${selftext}`);
 }
