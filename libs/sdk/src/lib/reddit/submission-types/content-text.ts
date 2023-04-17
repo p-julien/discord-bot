@@ -19,7 +19,7 @@ export async function sendSubmissionAsContentText({
   }
 
   const url = `${configuration.reddit.serviceUrl}${submission.permalink}`;
-  const title = `**${submission.title}**\n${url}`;
+  const title = `📝 **${submission.title}**\n${url}`;
   const selftext = '```md\n' + submission.selftext + '\n```';
 
   return await channel.send(`${title}\n${selftext}`);

@@ -16,5 +16,5 @@ export async function sendSubmissionAsText({
     submission.url = `|| ${submission.url} ||`;
   }
 
-  return await channel.send(`**${submission.title}**\n${submission.url}`);
+  return await channel.send(`💬 **${submission.title}**\n${submission.url}`);
 }

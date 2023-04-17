@@ -4,6 +4,7 @@ import { SdkConfiguration } from '../../shared/configurations/sdk-configuration'
 
 export type SubmissionType =
   | 'Image'
+  | 'AnimatedImage'
   | 'Video'
   | 'Gallery'
   | 'Selftext'

@@ -14,7 +14,7 @@ export async function sendSubmissionAsGallery({
   const url = `${configuration.reddit.serviceUrl}${submission.permalink}`;
 
   return await channel.send({
-    content: `**${submission.title}**\n${url}`,
+    content: `🖼️ **${submission.title}**\n${url}`,
     files: getFiles(submission),
   });
 }

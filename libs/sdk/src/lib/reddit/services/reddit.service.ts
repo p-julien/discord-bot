@@ -12,6 +12,7 @@ import { sendSubmissionAsText } from '../submission-types/text';
 import { sendSubmissionAsVideo } from '../submission-types/video';
 import { isUrlImage } from '../helpers/url-image';
 import { SubmissionData, SubmissionType } from '../models/submission';
+import { sendSubmissionAsAnimatedImage } from '../submission-types/animated-image';
 
 export class RedditService {
   private readonly _instance = new Snoowrap(configuration.reddit);
@@ -21,6 +22,7 @@ export class RedditService {
     (data: SubmissionData) => Promise<Message>
   > = {
     Image: sendSubmissionAsImage,
+    AnimatedImage: sendSubmissionAsAnimatedImage,
     Video: sendSubmissionAsVideo,
     Gallery: sendSubmissionAsGallery,
     Selftext: sendSubmissionAsContentText,
@@ -96,6 +98,7 @@ export class RedditService {
     if (isUrlImage(submission.url)) return 'Image';
     if (submission.is_video) return 'Video';
     if (submission.selftext !== '') return 'Selftext';
+    if (submission.url.split('.').pop() === 'gifv') return 'AnimatedImage';
     return 'Unknown';
   }
 
